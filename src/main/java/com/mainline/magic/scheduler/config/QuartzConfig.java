@@ -91,11 +91,11 @@ public class QuartzConfig {
 		// 마스터 스케쥴러인저 확인한다.
 		if(Boolean.valueOf(mcpProperteis.getMaster() != null ? mcpProperteis.getMaster() : "false" )) {
 			List<Trigger> list = JobUtils.getJobs(scheduler, jobGroup);
-			scheduler.start();
 			// 최초 무한 루프 job 관리용 cron job을 생성한다.
 			if(list.size() == 0) {
 				// cron job 등록
 				Date date  = JobUtils.createCronJob(jobName, jobGroup, CronJob.class, scheduler, null);
+				//scheduler.start();
 			}else {
 				log.info("현재 등록된 작업이 있습니다. : "+ list.size());
 			}

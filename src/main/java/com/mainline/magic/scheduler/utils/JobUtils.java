@@ -52,7 +52,7 @@ public class JobUtils {
 	 * @return
 	 */
 	public static Trigger createCronTrigger(JobDetail jobDetail, String cron) {
-		String cronExpression = cron != null && cron.length() != 0? cron : "0/30 * * * * ?";
+		String cronExpression = cron != null && cron.length() != 0? cron : "0/01 * * * * ?";
 		return TriggerBuilder.newTrigger()
 				.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
 				.forJob(jobDetail.getKey()).build();
