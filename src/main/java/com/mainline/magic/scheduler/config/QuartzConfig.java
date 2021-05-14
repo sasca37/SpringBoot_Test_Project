@@ -7,12 +7,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -23,7 +20,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.mainline.magic.scheduler.job.CronJob;
-import com.mainline.magic.scheduler.listener.InsuranceTriggerListner;
 import com.mainline.magic.scheduler.utils.JobUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +57,6 @@ public class QuartzConfig {
 		schedulerFactoryBean.setJobFactory(jobFactory);
 		schedulerFactoryBean.setTransactionManager(transactionManager);
 		schedulerFactoryBean.setDataSource(dataSource);
-		schedulerFactoryBean.setGlobalTriggerListeners(new InsuranceTriggerListner());
 		schedulerFactoryBean.setOverwriteExistingJobs(true);
 		schedulerFactoryBean.setAutoStartup(true);
 		schedulerFactoryBean.setQuartzProperties(quartzProperties());

@@ -16,12 +16,10 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.impl.matchers.KeyMatcher;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.google.gson.Gson;
 import com.mainline.magic.scheduler.dto.Terms;
-import com.mainline.magic.scheduler.listener.InsuranceTriggerListner;
 
 public class JobUtils {
 	
