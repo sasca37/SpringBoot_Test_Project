@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -23,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Terms;
-import com.mainline.magic.scheduler.job.InsuranceJob;
-import com.mainline.magic.scheduler.utils.JobUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SchedulerManagementController {
 	
-	private String jobGroup = "InsuranceJob";
-	
+
 	@Autowired
     private Scheduler scheduler;
 	
@@ -45,10 +41,7 @@ public class SchedulerManagementController {
 		try {
 			System.out.println("addJob          :" + jobInfo.size());
 			for(Terms terms  : jobInfo) {
-				UUID uuid = UUID.randomUUID();
-				terms.setUuid(uuid.toString().replaceAll("-", ""));
-				terms.setJobGroup(jobGroup);
-//				Date date = JobUtils.createJob(terms, InsuranceJob.class, scheduler);
+				// 약관 제작 실행
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

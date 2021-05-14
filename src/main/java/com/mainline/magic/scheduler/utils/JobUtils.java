@@ -37,22 +37,6 @@ public class JobUtils {
 	}
 	
 	/**
-	 * insuranceJob에 필요한 정보를 jobDataMap에 담아서 JobDetail을 생성 
-	 * 
-	 * @param jobInfo
-	 * @param job
-	 * @return
-	 */
-	public static JobDetail createJobDetail(Terms terms,Class<? extends QuartzJobBean> job) {
-		JobDataMap dataMap = new JobDataMap();
-		Gson gson = new Gson();
-		dataMap.put("jobInfo", gson.toJson(terms));
-		return JobBuilder.newJob(job).withIdentity(new JobKey(terms.getUuid(), terms.getJobGroup())).usingJobData(dataMap)
-				// 작업 실패시 재작업 설정
-				.requestRecovery().build();
-	}
-	
-	/**
 	 * fired trigger를 생성한다.
 	 * @param jobKey
 	 * @return
@@ -85,6 +69,7 @@ public class JobUtils {
 		return TriggerBuilder.newTrigger().withIdentity(terms.getUuid(), terms.getJobGroup()).forJob(jobDetail).build();
 	}
 	
+	
 	/**
 	 * fired job 등록
 	 * @param jobName
@@ -100,23 +85,7 @@ public class JobUtils {
 		return scheduler.scheduleJob(detail, trigger);
 	}
 	
-	
-	/**
-	 * 약관 제작 job 등록에 사용한다.
-	 * 
-	 * @param jobInfo
-	 * @param job
-	 * @param scheduler
-	 * @return
-	 * @throws SchedulerException
-	 */
-	public static Date createJob( Terms terms, Class<? extends QuartzJobBean> job, Scheduler scheduler) throws SchedulerException {
-		JobDetail detail = createJobDetail(terms, job);
-		Trigger trigger = createTrigger(detail, terms);
-//		scheduler.getListenerManager().addTriggerListener(new InsuranceTriggerListner(), KeyMatcher.keyEquals(trigger.getKey()));
-		return scheduler.scheduleJob(detail, trigger);
-	}
-	
+
 	/**
 	 * cron Job 등록
 	 * @param jobName
