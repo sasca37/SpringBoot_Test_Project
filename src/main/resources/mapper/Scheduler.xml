@@ -14,4 +14,8 @@
 		 SELECT * FROM QRTZ_SCHEDULER_STATE
 		 where #{date} <![CDATA[< ]]>LAST_CHECKIN_TIME
 	</select>
+	<update id="setSchedulerState">
+		UPDATE MCP_TERMS_JOB SET STATE = #{state}
+		WHERE SEQ = SEQ
+	</update>
 </mapper>

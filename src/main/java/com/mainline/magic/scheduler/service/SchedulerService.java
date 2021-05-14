@@ -13,18 +13,22 @@ import com.mainline.magic.scheduler.dto.Terms;
 public class SchedulerService {
 	
 	@Autowired
-	ScheduleDao cronScheduleDao;
+	ScheduleDao scheduleDao;
 	
 	public int getConTrigger(){
-		return cronScheduleDao.getConTrigger();
+		return scheduleDao.getConTrigger();
 	}
 	
 	public List<Terms> getTermsJob(){
-		return cronScheduleDao.getTermsJob();
+		return scheduleDao.getTermsJob();
 	}
 	
 	public List<Map<String, Object>> getSchedulerState(Long date){
-		return cronScheduleDao.getSchedulerState(date);
+		return scheduleDao.getSchedulerState(date);
+	}
+	
+	public int setSchedulerState(Terms terms) {
+		return scheduleDao.setSchedulerState(terms);
 	}
 
 }

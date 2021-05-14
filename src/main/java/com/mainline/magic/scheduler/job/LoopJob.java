@@ -51,6 +51,8 @@ public class LoopJob extends QuartzJobBean {
 						result.addAll(partition.get(i));
 						System.out.println( i+ " 해당 job size : "+result.size());
 						String url = schedulers.get(i).get("INSTANCE_NAME").toString();
+						// DB 상태 변경 
+						setSchedulerState(result);
 						McpHttpUtils.addJobPost(url, result);
 						result.clear();
 					}else {
@@ -63,6 +65,8 @@ public class LoopJob extends QuartzJobBean {
 								}	
 								System.out.println("마지막 job size :"+result.size());
 								String url = schedulers.get(i-1).get("INSTANCE_NAME").toString();
+								// DB 상태 변경 
+								setSchedulerState(result);
 								McpHttpUtils.addJobPost(url, result);
 								result.clear();
 							}else {
@@ -72,6 +76,8 @@ public class LoopJob extends QuartzJobBean {
 							result.addAll(partition.get(i));
 							System.out.println( i+ " 해당 job size : "+result.size());
 							String url = schedulers.get(i).get("INSTANCE_NAME").toString();
+							// DB 상태 변경 
+							setSchedulerState(result);
 							McpHttpUtils.addJobPost(url, result);
 							result.clear();
 						}
@@ -86,4 +92,12 @@ public class LoopJob extends QuartzJobBean {
 			e1.printStackTrace();	
 		}
 	}
+	
+	public void setSchedulerState(List<Terms> list) {
+		for(Terms terms : list) {
+			terms.setState(1);
+			schedulerService.setSchedulerState(terms);
+		}
+	}
+	
 }

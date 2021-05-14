@@ -13,4 +13,5 @@ public interface ScheduleDao {
 	int getConTrigger();
 	List<Terms> getTermsJob();
 	List<Map<String, Object>> getSchedulerState(@Param("date") Long date);
+	int setSchedulerState(Terms terms);
 }
