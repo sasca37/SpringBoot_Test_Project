@@ -58,18 +58,6 @@ public class JobUtils {
 				.forJob(jobDetail.getKey()).build();
 	}
 	
-
-	/**
-	 * 약관 제작 Trigger 생성한다.
-	 * @param jobDetail
-	 * @param terms
-	 * @return
-	 */
-	public static Trigger createTrigger(JobDetail jobDetail, Terms terms) {
-		return TriggerBuilder.newTrigger().withIdentity(terms.getUuid(), terms.getJobGroup()).forJob(jobDetail).build();
-	}
-	
-	
 	/**
 	 * fired job 등록
 	 * @param jobName

@@ -9,8 +9,6 @@ import lombok.Data;
 public class Terms implements Serializable{
 	
 	private static final long serialVersionUID = 6595851701569884701L;
-	private String uuid;
-	private String jobGroup;
 	private String seq;
 	private String PolicyNum;
 	private String ProuctCode;

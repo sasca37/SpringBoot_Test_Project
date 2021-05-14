@@ -15,7 +15,7 @@
 		 where #{date} <![CDATA[< ]]>LAST_CHECKIN_TIME
 	</select>
 	<update id="setSchedulerState">
-		UPDATE MCP_TERMS_JOB SET STATE = #{state}
+		UPDATE MCP_TERMS_JOB SET STATE = #{state}, START_DATE = SYSDATE 
 		WHERE SEQ = SEQ
 	</update>
 </mapper>
