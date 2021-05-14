@@ -35,6 +35,11 @@ public class CronJob extends QuartzJobBean {
 			List<Terms> list = schedulerService.getTermsJob();
 			int total = list.size();
 
+			if(total == 0) {
+				Thread.sleep(1000);
+				log.info("job count : " + total);
+				return;
+			}
 			// 10초를 빼준다.
 			List<Map<String, Object>> schedulers = schedulerService
 					.getSchedulerState(System.currentTimeMillis() - 10000);
