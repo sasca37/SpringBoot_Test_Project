@@ -36,13 +36,25 @@ public class SchedulerManagementController {
 	@Autowired
 	private McpProperties properties;
 	
-	@RequestMapping(value = "/addJob", method = RequestMethod.POST)
-	public ResponseEntity<?> addScheduleJob(@RequestBody  List<Terms> jobInfo) {
+	@RequestMapping(value = "/addJobs", method = RequestMethod.POST)
+	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> jobInfo) {
 		try {
 			System.out.println("addJob          :" + jobInfo.size());
 			for(Terms terms  : jobInfo) {
 				// 약관 제작 실행
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/addJob", method = RequestMethod.POST)
+	public ResponseEntity<?> addScheduleJob(@RequestBody  Terms terms) {
+		try {
+			System.out.println("addJob          :" + terms);
+	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

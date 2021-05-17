@@ -14,4 +14,6 @@ public class McpProperties {
 	private String master;
 	private String clear;
 	private String downloadPath;
+	private String loadbalancePath;
+	private String single;
 }

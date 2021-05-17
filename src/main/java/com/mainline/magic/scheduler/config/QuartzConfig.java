@@ -82,7 +82,6 @@ public class QuartzConfig {
 	@Bean(initMethod = "init")
 	public void quartzStarter() throws Exception {
 		
-		
 		// 스케쥴러 내역을 비울지 확인한다.
 		if(Boolean.valueOf(mcpProperteis.getClear() != null ? mcpProperteis.getClear() : "false" )) {
 			scheduler.clear();

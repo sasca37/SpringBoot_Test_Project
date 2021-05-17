@@ -12,6 +12,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Terms;
 import com.mainline.magic.scheduler.service.SchedulerService;
 import com.mainline.magic.scheduler.utils.McpHttpUtils;
@@ -24,6 +25,9 @@ public class CronJob extends QuartzJobBean {
 
 	@Autowired
 	SchedulerService schedulerService;
+	
+	@Autowired
+	private McpProperties mcpProperteis;
 
 	/**
 	 * 요청 작업을 분배해서 본인 포함 다은 스케쥴러 서버에 작업을 분배하여 준다.
@@ -32,9 +36,10 @@ public class CronJob extends QuartzJobBean {
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		try {
 			log.info("================= CronJob =================");
+			// 단일 모드 동작 여부
+			boolean single = Boolean.valueOf(mcpProperteis.getSingle() != null ? mcpProperteis.getSingle() : "false" );
 			List<Terms> list = schedulerService.getTermsJob();
 			int total = list.size();
-
 			if(total == 0) {
 				Thread.sleep(1000);
 				log.info("job count : " + total);
@@ -46,62 +51,107 @@ public class CronJob extends QuartzJobBean {
 			int schedulerCnt = schedulers.size();
 
 			// 스케쥴러 정보가 없거나 단일이면 빠져 나간다.
-			if (schedulerCnt == 0 || schedulerCnt == 1) {
+			if (!single && (schedulerCnt == 0 || schedulerCnt == 1)) {
 				Thread.sleep(1000);
 				return;
 			}
-			int remainder = total % schedulerCnt;
-			List<List<Terms>> partition = ListUtils.partition(list, total / schedulerCnt);
-			List<Terms> result = new ArrayList<Terms>();
-			for (int i = 0; i < partition.size(); i++) {
-				if (remainder == 0) {
-					result.addAll(partition.get(i));
-					System.out.println(i + " 해당 job size : " + result.size());
-					String url = schedulers.get(i).get("INSTANCE_NAME").toString();
-					// DB 상태 변경
-					setSchedulerState(result);
-					McpHttpUtils.addJobPost(url, result);
-					result.clear();
-				} else {
-					// 마지막과 마지막 전꺼를 합치기위해
-					if (schedulerCnt - 1 == i || schedulerCnt == i) {
-						// 마지막일때 이전꺼에 추가하여 보내준다.
-						if (schedulerCnt == i) {
-							for (int j = 0; j < partition.get(i).size(); j++) {
-								result.add(partition.get(i).get(j));
-							}
-							System.out.println("마지막 job size :" + result.size());
-							String url = schedulers.get(i - 1).get("INSTANCE_NAME").toString();
-							// DB 상태 변경
-							setSchedulerState(result);
-							McpHttpUtils.addJobPost(url, result);
-							result.clear();
-						} else {
-							result.addAll(partition.get(i));
-						}
-					} else {
-						result.addAll(partition.get(i));
-						System.out.println(i + " 해당 job size : " + result.size());
-						String url = schedulers.get(i).get("INSTANCE_NAME").toString();
-						// DB 상태 변경
-						setSchedulerState(result);
-						McpHttpUtils.addJobPost(url, result);
-						result.clear();
-					}
-				}
+			
+			if(mcpProperteis.getLoadbalancePath() != null) {
+				l4Loadbalance(list);
+			}else {
+				loadbalance(list, schedulers);
 			}
-
+			
 			Thread.sleep(1000);
 		} catch (InterruptedException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void setSchedulerState(List<Terms> list) {
+	/**
+	 * 상태 코드 업데이트 1
+	 * @param list
+	 */
+	private void setSchedulerState(List<Terms> list) {
 		for (Terms terms : list) {
 			terms.setState(1);
-			schedulerService.setSchedulerState(terms);
+			setSchedulerState(terms);
+		}
+	}
+	/**
+	 * 상태 코드 없데이트 
+	 * @param terms
+	 */
+	private void setSchedulerState(Terms terms) {
+		schedulerService.setSchedulerState(terms);
+	}
+	
+	/**
+	 * L4 로드밸런싱 path 정보가 있다면 해당 경로로 작업정보를 보낸다.
+	 * @param list
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void l4Loadbalance(List<Terms> list)  throws InterruptedException, IOException {
+		String url = mcpProperteis.getLoadbalancePath();
+		for(Terms terms : list) {
+			terms.setState(1);
+			if(McpHttpUtils.addJobPost(url, terms)) {
+				setSchedulerState(terms);
+			}
+			
+		}
+	}
+	
+	/**
+	 * L4 로드밸런싱 path가 없은때 Instance_name 정보로 작업을 분배하여 던져 준다.
+	 * @param list
+	 * @param schedulers
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private void loadbalance(List<Terms> list, List<Map<String, Object>> schedulers)  throws InterruptedException, IOException {
+		int total = list.size();
+		int schedulerCnt = schedulers.size();
+		int remainder = total % schedulerCnt;
+		List<List<Terms>> partition = ListUtils.partition(list, total / schedulerCnt);
+		List<Terms> result = new ArrayList<Terms>();
+		String url = null; 
+		for (int i = 0; i < partition.size(); i++) {
+			if (remainder == 0) {
+				url = schedulers.get(i).get("INSTANCE_NAME").toString();
+				if(McpHttpUtils.addJobPost(url, partition.get(i))) {
+					// DB 상태 변경
+					setSchedulerState(partition.get(i));
+				}
+			} else {
+				// 마지막과 마지막 전꺼를 합치기위해
+				if (schedulerCnt - 1 == i || schedulerCnt == i) {
+					// 마지막일때 이전꺼에 추가하여 보내준다.
+					if (schedulerCnt == i) {
+						for (int j = 0; j < partition.get(i).size(); j++) {
+							result.add(partition.get(i).get(j));
+						}
+						url = schedulers.get(i - 1).get("INSTANCE_NAME").toString();
+					
+						if(McpHttpUtils.addJobPost(url, result)) {
+							// DB 상태 변경
+							setSchedulerState(result);
+						}
+						result.clear();
+					} else {
+						result.addAll(partition.get(i));
+					}
+				} else {
+					result.addAll(partition.get(i));
+					url = schedulers.get(i).get("INSTANCE_NAME").toString();
+					if(McpHttpUtils.addJobPost(url, result)) {
+						// DB 상태 변경
+						setSchedulerState(result);
+					}
+					result.clear();
+				}
+			}
 		}
 	}
 }
