@@ -15,6 +15,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Terms;
 import com.mainline.magic.scheduler.service.SchedulerService;
+import com.mainline.magic.scheduler.utils.CommonUtils;
 import com.mainline.magic.scheduler.utils.McpHttpUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class CronJob extends QuartzJobBean {
 			log.info("================= CronJob =================");
 			// 단일 모드 동작 여부
 			boolean single = Boolean.valueOf(mcpProperteis.getSingle() != null ? mcpProperteis.getSingle() : "false" );
-			List<Terms> list = schedulerService.getTermsJob();
+			List<Terms> list = schedulerService.getTermsLi();
 			int total = list.size();
 			if(total == 0) {
 				Thread.sleep(1000);
@@ -62,28 +63,28 @@ public class CronJob extends QuartzJobBean {
 				loadbalance(list, schedulers);
 			}
 			
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * 상태 코드 업데이트 1
+	 * 상태 코드 업데이트 
 	 * @param list
 	 */
-	private void setSchedulerState(List<Terms> list) {
+	private void updateTermsStatus(List<Terms> list, String status) {
 		for (Terms terms : list) {
-			terms.setState(1);
-			setSchedulerState(terms);
+			terms.setStatus(status);
+			updateTermsStatus(terms);
 		}
 	}
 	/**
 	 * 상태 코드 없데이트 
 	 * @param terms
 	 */
-	private void setSchedulerState(Terms terms) {
-		schedulerService.setSchedulerState(terms);
+	private void updateTermsStatus(Terms terms) {
+		schedulerService.updateTermsStatus(terms);
 	}
 	
 	/**
@@ -95,13 +96,17 @@ public class CronJob extends QuartzJobBean {
 	private void l4Loadbalance(List<Terms> list)  throws InterruptedException, IOException {
 		String url = mcpProperteis.getLoadbalancePath();
 		for(Terms terms : list) {
-			terms.setState(1);
+			terms.setStatus(CommonUtils.success);
+			updateTermsStatus(terms);
 			if(McpHttpUtils.addJobPost(url, terms)) {
-				setSchedulerState(terms);
+				log.info("http addJobPost success");
+			}else {
+				terms.setStatus(CommonUtils.fail);
+				updateTermsStatus(terms);
 			}
-			
 		}
 	}
+	
 	
 	/**
 	 * L4 로드밸런싱 path가 없은때 Instance_name 정보로 작업을 분배하여 던져 준다.
@@ -120,9 +125,13 @@ public class CronJob extends QuartzJobBean {
 		for (int i = 0; i < partition.size(); i++) {
 			if (remainder == 0) {
 				url = schedulers.get(i).get("INSTANCE_NAME").toString();
+				// DB 상태 변경
+				updateTermsStatus(partition.get(i), CommonUtils.success);
 				if(McpHttpUtils.addJobPost(url, partition.get(i))) {
-					// DB 상태 변경
-					setSchedulerState(partition.get(i));
+					log.info("http addJobPost success");
+				}else {
+					// 전송 실패로 표시
+					updateTermsStatus(partition.get(i), CommonUtils.fail);
 				}
 			} else {
 				// 마지막과 마지막 전꺼를 합치기위해
@@ -133,10 +142,13 @@ public class CronJob extends QuartzJobBean {
 							result.add(partition.get(i).get(j));
 						}
 						url = schedulers.get(i - 1).get("INSTANCE_NAME").toString();
-					
+						// DB 상태 변경
+						updateTermsStatus(result, CommonUtils.success);
 						if(McpHttpUtils.addJobPost(url, result)) {
-							// DB 상태 변경
-							setSchedulerState(result);
+							log.info("http addJobPost success");
+						}else {
+							// 전송 실패로 표시
+							updateTermsStatus(result, CommonUtils.fail);
 						}
 						result.clear();
 					} else {
@@ -145,9 +157,13 @@ public class CronJob extends QuartzJobBean {
 				} else {
 					result.addAll(partition.get(i));
 					url = schedulers.get(i).get("INSTANCE_NAME").toString();
+					// DB 상태 변경
+					updateTermsStatus(result, CommonUtils.success);
 					if(McpHttpUtils.addJobPost(url, result)) {
-						// DB 상태 변경
-						setSchedulerState(result);
+						log.info("http addJobPost success");
+					}else {
+						// 전송 실패로 표시
+						updateTermsStatus(result, CommonUtils.fail);
 					}
 					result.clear();
 				}

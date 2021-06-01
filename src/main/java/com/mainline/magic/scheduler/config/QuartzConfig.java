@@ -20,6 +20,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.mainline.magic.scheduler.job.CronJob;
+import com.mainline.magic.scheduler.utils.CommonUtils;
 import com.mainline.magic.scheduler.utils.JobUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 public class QuartzConfig {
-
-	private final String jobName = "LoopJobChecker";
-	private final String jobGroup = "CronJobGroup";
 
 	@Autowired
 	private DataSource dataSource;
@@ -46,6 +44,11 @@ public class QuartzConfig {
 	
 	@Autowired
 	private McpProperties mcpProperteis;
+	
+	
+	@Autowired
+	private CommonUtils commonUtils;
+	
 
 
 	@Bean
@@ -61,12 +64,13 @@ public class QuartzConfig {
 		schedulerFactoryBean.setAutoStartup(true);
 		schedulerFactoryBean.setQuartzProperties(quartzProperties());
 		return schedulerFactoryBean;
+//		return null;
 	}
 
 	@Bean
 	public Properties quartzProperties() {
 		PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-		propertiesFactoryBean.setLocation(new ClassPathResource("/application.properties"));
+		propertiesFactoryBean.setLocation(new ClassPathResource("/quartz.properties"));
 
 		Properties properties = null;
 		try {
@@ -83,23 +87,25 @@ public class QuartzConfig {
 	public void quartzStarter() throws Exception {
 		
 		// 스케쥴러 내역을 비울지 확인한다.
-		if(Boolean.valueOf(mcpProperteis.getClear() != null ? mcpProperteis.getClear() : "false" )) {
+		if(commonUtils.checkBoolean(mcpProperteis.getClear())) {
 			scheduler.clear();
 		}
 		
 		// 마스터 스케쥴러인저 확인한다.
-		if(Boolean.valueOf(mcpProperteis.getMaster() != null ? mcpProperteis.getMaster() : "false" )) {
-			List<Trigger> list = JobUtils.getJobs(scheduler, jobGroup);
+		if(commonUtils.checkBoolean(mcpProperteis.getMaster())) {
+			List<Trigger> list = JobUtils.getJobs(scheduler, CommonUtils.jobGroup);
 			// 최초 무한 루프 job 관리용 cron job을 생성한다.
 			if(list.size() == 0) {
 				// cron job 등록
-				Date date  = JobUtils.createCronJob(jobName, jobGroup, CronJob.class, scheduler, null);
+				Date date  = JobUtils.createCronJob(CommonUtils.jobName, CommonUtils.jobGroup, CronJob.class, scheduler, null);
+				log.info("Schedule registration : "+ commonUtils.getDateToString(date, "yyyy-MM-dd HH:mm:ss"));
 				//scheduler.start();
 			}else {
 				log.info("현재 등록된 작업이 있습니다. : "+ list.size());
 			}
 		}else {
-			log.info("이서버는 마스터가 아님");
+			log.info("이서버는 마스터가 아닙니다.");
 		}
 	}
+
 }

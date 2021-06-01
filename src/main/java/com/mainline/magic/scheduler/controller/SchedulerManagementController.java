@@ -5,11 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Terms;
+import com.mainline.magic.scheduler.service.SchedulerService;
+import com.mainline.magic.scheduler.utils.CommonUtils;
+import com.mainline.magic.scheduler.utils.TermsUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,44 +30,75 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SchedulerManagementController {
 	
-
-	@Autowired
-    private Scheduler scheduler;
-	
 	@Autowired
 	private McpProperties properties;
+
+	@Autowired
+	private CommonUtils commonUtils;
 	
-	@RequestMapping(value = "/addJobs", method = RequestMethod.POST)
-	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> jobInfo) {
+	@Autowired
+	private TermsUtils termsUtils;
+	
+	@Autowired
+	private SchedulerService schedulerService;
+		
+	
+	@RequestMapping(value = "/add-jobs", method = RequestMethod.POST)
+	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> listTerms) {
 		try {
-			System.out.println("addJob          :" + jobInfo.size());
-			for(Terms terms  : jobInfo) {
-				// 약관 제작 실행
+			for(Terms terms : listTerms) {
+				// api 연동 방식
+				if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
+					// history 관리를 위해서 DB에 날라온 정보를 insert 해준다.
+					terms.setMergeId(commonUtils.getUUID());
+					terms.setStatus(CommonUtils.success);
+					terms = commonUtils.setDefaultUser(terms);
+					int result = schedulerService.insertTerms(terms);
+					if(result <= 0) {
+						return new ResponseEntity<>("create data failed", HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+
+				}
+//				termsUtils.makeTerms(terms);
+				termsUtils.executor(terms);
+				log.info("termsUtils.executor");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return new ResponseEntity<>("Job create failed", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/addJob", method = RequestMethod.POST)
+	@RequestMapping(value = "/add-job", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJob(@RequestBody  Terms terms) {
 		try {
-			System.out.println("addJob          :" + terms);
-	
+			// api 연동 방식
+			if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
+				terms.setMergeId(commonUtils.getUUID());
+				terms.setStatus(CommonUtils.success);
+				terms = commonUtils.setDefaultUser(terms);
+				// 데이터 추가
+				int result = schedulerService.insertTerms(terms);
+				if(result <= 0) {
+					return new ResponseEntity<>("create data failed", HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+//			termsUtils.makeTerms(terms);
+			termsUtils.executor(terms);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return new ResponseEntity<>("Job created failed", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/file", method = RequestMethod.POST)
+	@RequestMapping(value = "/mts-file-upload", method = RequestMethod.POST)
 	public ResponseEntity<?> fileUpload(@RequestPart MultipartFile file, @RequestPart String comment) {
-		String fileName = "";
 		try {
-			File dir = new File(properties.getDownloadPath());
+			File dir = new File(properties.getMtsPath());
 			
 			if(!dir.exists()) {
 				log.info("make download directory : "+dir.mkdirs());
@@ -74,7 +106,8 @@ public class SchedulerManagementController {
 			}
 
 			ZipInputStream inputStream = new ZipInputStream(file.getInputStream());
-			Path path = Paths.get(properties.getDownloadPath()+File.separator+file.getOriginalFilename());
+//			Path path = Paths.get(properties.getDownloadPath()+File.separator+file.getOriginalFilename());
+			Path path = Paths.get(properties.getMtsPath()+File.separator+file.getOriginalFilename());
 		
 			for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null;) {
 				Path resolvedPath = path.resolve(entry.getName());
@@ -87,7 +120,8 @@ public class SchedulerManagementController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return new ResponseEntity<>(" file Upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>( fileName + " file Upload successfully", HttpStatus.OK);
+		return new ResponseEntity<>(" file Upload successfully", HttpStatus.OK);
 	}
 }

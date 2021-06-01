@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -17,9 +16,6 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-
-import com.google.gson.Gson;
-import com.mainline.magic.scheduler.dto.Terms;
 
 public class JobUtils {
 	

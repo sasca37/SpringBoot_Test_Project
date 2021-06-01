@@ -1,10 +1,8 @@
 package com.mainline.magic.scheduler;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -13,9 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -175,16 +170,28 @@ class MagicSchedulerApplicationTests {
 			e.printStackTrace();
 		}
 	}
+	
 	@Test
-	public void listTest() {
-		List<String> list  = new ArrayList<String>();
-		list.add("aaaa");
-		list.add("aaaa");
-		list.add("aaaa");
-		list.add("aaaa");
-		list.add("aaaa");
-		list.add("aaaa");
-		System.out.println(list.toString());
+	public void blockingQueueTest() {
+//		int capacity = 5;
+//		ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(capacity);
+//		
+//		Thread thread = new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				System.out.println("aaaaaa");
+//			}
+//		});
+		int maxCore = Runtime.getRuntime().availableProcessors();
+		System.out.println("maxCore : "+ maxCore);
 	}
+	
+	
+	
+	
+	
+
 
 }

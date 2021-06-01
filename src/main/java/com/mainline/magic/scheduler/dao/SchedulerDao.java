@@ -9,9 +9,11 @@ import org.apache.ibatis.annotations.Param;
 import com.mainline.magic.scheduler.dto.Terms;
 
 @Mapper
-public interface ScheduleDao {
-	int getConTrigger();
-	List<Terms> getTermsJob();
+public interface SchedulerDao {
 	List<Map<String, Object>> getSchedulerState(@Param("date") Long date);
-	int setSchedulerState(Terms terms);
+	int updateTermsLIStatus(Terms terms);
+	int updateTermsGIStatus(Terms terms);
+	List<Terms> getTermsLi();
+	int insertTermsLI(Terms terms);
+	int insertTermsGI(Terms terms);
 }
