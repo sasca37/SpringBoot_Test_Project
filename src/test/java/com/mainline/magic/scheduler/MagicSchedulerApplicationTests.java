@@ -11,6 +11,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Random;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,41 +27,26 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.quartz.JobKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.mainline.magic.scheduler.dao.SchedulerDao;
+import com.mainline.magic.scheduler.dto.Terms;
+import com.mainline.magic.scheduler.service.SchedulerService;
+
+@RunWith(SpringRunner.class)
 @SpringBootTest
 class MagicSchedulerApplicationTests {
-
-//	@Mock
-//    private Scheduler scheduler;
-
-	void contextLoads() {
-
-		JobKey jobKey = new JobKey("김동우", "메인라인");
-//		System.out.println(scheduler + " ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
-//		try { 
-//			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-//			JobDetail detail = JobUtils.createJob(jobKey, InsuranceJob.class);
-//			Trigger trigger = JobUtils.createTrigger(jobKey);
-//			scheduler.start();
-//			scheduler.scheduleJob(detail,trigger);
-//			System.out.println("==========================================");
-//			try {
-//				Thread.sleep(3 * 1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} 
-//		} catch (SchedulerException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-	}
+	@Autowired
+	private SchedulerService service;
+	
+	@Autowired
+	private SchedulerDao scheduleDao;
 
 	public void test() {
-		System.out.println("aaaaaaaaaaaaaaaaa");
 		System.out.println(System.currentTimeMillis());
 		File file = new File("C:\\Users\\mainline\\Desktop\\replace_all_word05_resut.docx");
 		sendMts(file);
@@ -172,26 +159,26 @@ class MagicSchedulerApplicationTests {
 	}
 	
 	@Test
-	public void blockingQueueTest() {
-//		int capacity = 5;
-//		ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(capacity);
-//		
-//		Thread thread = new Thread(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				// TODO Auto-generated method stub
-//				System.out.println("aaaaaa");
-//			}
-//		});
-		int maxCore = Runtime.getRuntime().availableProcessors();
-		System.out.println("maxCore : "+ maxCore);
+	public void insertLIData() {
+		for(int i =  0; i < 20; i ++) {
+			Terms terms = new Terms();
+			String code = "";
+			for(int j= 0; j < 20; j++ ) {
+				if(j == 0) {
+					code = ""+(int)(Math.random() * 100+1);
+				}else {
+					code +=","+(int)(Math.random() * 100+1);
+				}
+			}
+			terms.setMergeId(UUID.randomUUID().toString().replaceAll("-", ""));
+			terms.setCreator("SYSTEM");
+			terms.setUpdator("SYSTEM");
+			terms.setStatus("01");
+			terms.setId("5F38BB5A015A476AB54D9668F39535A7");
+			terms.setCode(code);
+			//System.out.println(terms.toString());
+			int result = scheduleDao.insertTermsGI(terms);
+			System.out.println("result : "+ result);
+		}
 	}
-	
-	
-	
-	
-	
-
-
 }

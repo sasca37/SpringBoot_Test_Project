@@ -17,7 +17,6 @@ public class McpProperties {
 	private String master;
 	private String clear;
 	private String loadbalancePath;
-	private String single;
 	private String mtsPath;
 	private String mtsResultPath;
 	private String insuranceTypeKey;
@@ -26,4 +25,5 @@ public class McpProperties {
 	private String magictermsDocumentType;
 	private String quartzDb;
 	private String threadSize;
+	private String cronExpression;
 }

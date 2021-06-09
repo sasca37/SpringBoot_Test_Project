@@ -16,8 +16,11 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JobUtils {
+	
 	
 	/**
 	 * JobDetail 생성
@@ -26,7 +29,7 @@ public class JobUtils {
 	 * @param job
 	 * @return
 	 */
-	public static JobDetail createJobDetail(String jobName,String JobGroup, Class<? extends QuartzJobBean> job) {
+	public JobDetail createJobDetail(String jobName,String JobGroup, Class<? extends QuartzJobBean> job) {
 		return JobBuilder.newJob(job).withIdentity(new JobKey(jobName, JobGroup))
 				// 작업 실패시 재작업 설정
 				.requestRecovery().build();
@@ -37,7 +40,7 @@ public class JobUtils {
 	 * @param jobKey
 	 * @return
 	 */
-	public static Trigger createTrigger(JobDetail jobDetail) {
+	public Trigger createTrigger(JobDetail jobDetail) {
 		return TriggerBuilder.newTrigger().forJob(jobDetail).build();
 	}
 	
@@ -47,8 +50,8 @@ public class JobUtils {
 	 * @param cron
 	 * @return
 	 */
-	public static Trigger createCronTrigger(JobDetail jobDetail, String cron) {
-		String cronExpression = cron != null && cron.length() != 0? cron : "0/01 * * * * ?";
+	public Trigger createCronTrigger(JobDetail jobDetail, String cron) {
+		String cronExpression = cron == null ? "0/02 * * * * ?" : cron;
 		return TriggerBuilder.newTrigger()
 				.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
 				.forJob(jobDetail.getKey()).build();
@@ -63,7 +66,7 @@ public class JobUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Date createJob( String jobName, String jobGroup, Class<? extends QuartzJobBean> job, Scheduler scheduler) throws SchedulerException {
+	public Date createJob( String jobName, String jobGroup, Class<? extends QuartzJobBean> job, Scheduler scheduler) throws SchedulerException {
 		JobDetail detail = createJobDetail(jobName, jobGroup, job);
 		Trigger trigger = createTrigger(detail);
 		return scheduler.scheduleJob(detail, trigger);
@@ -80,7 +83,7 @@ public class JobUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Date createCronJob( String jobName, String jobGroup, Class<? extends QuartzJobBean> job, Scheduler scheduler, String cron) throws SchedulerException {
+	public Date createCronJob( String jobName, String jobGroup, Class<? extends QuartzJobBean> job, Scheduler scheduler, String cron) throws SchedulerException {
 		JobDetail detail = createJobDetail(jobName, jobGroup, job);
 		Trigger trigger = createCronTrigger(detail, cron);
 		return scheduler.scheduleJob(detail, trigger);
@@ -94,7 +97,7 @@ public class JobUtils {
 	 * @param jobGroup
 	 * @return
 	 */
-	public static List<Trigger> getJobs(Scheduler scheduler, String jobGroup) {
+	public List<Trigger> getJobs(Scheduler scheduler, String jobGroup) {
 		List<Trigger> list = new ArrayList<>();
 		try {
 			Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupContains(jobGroup));

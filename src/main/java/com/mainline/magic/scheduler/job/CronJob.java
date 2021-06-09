@@ -38,32 +38,33 @@ public class CronJob extends QuartzJobBean {
 		try {
 			log.info("================= CronJob =================");
 			// 단일 모드 동작 여부
-			boolean single = Boolean.valueOf(mcpProperteis.getSingle() != null ? mcpProperteis.getSingle() : "false" );
-			List<Terms> list = schedulerService.getTermsLi();
+			List<Terms> list = schedulerService.getTerms();
 			int total = list.size();
 			if(total == 0) {
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 				log.info("job count : " + total);
 				return;
 			}
+			log.info("스케쥴러 갯수 가져온다.");
 			// 10초를 빼준다.
 			List<Map<String, Object>> schedulers = schedulerService
 					.getSchedulerState(System.currentTimeMillis() - 10000);
 			int schedulerCnt = schedulers.size();
 
+			log.info("schedulerCnt :"+ schedulerCnt);
 			// 스케쥴러 정보가 없거나 단일이면 빠져 나간다.
-			if (!single && (schedulerCnt == 0 || schedulerCnt == 1)) {
+			if (schedulerCnt == 0) {
 				Thread.sleep(1000);
 				return;
 			}
 			
 			if(mcpProperteis.getLoadbalancePath() != null) {
+				log.info("로드 벨런싱 주소로 던진다");
 				l4Loadbalance(list);
 			}else {
 				loadbalance(list, schedulers);
 			}
 			
-			Thread.sleep(2000);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
@@ -95,6 +96,7 @@ public class CronJob extends QuartzJobBean {
 	 */
 	private void l4Loadbalance(List<Terms> list)  throws InterruptedException, IOException {
 		String url = mcpProperteis.getLoadbalancePath();
+		log.info(url);
 		for(Terms terms : list) {
 			terms.setStatus(CommonUtils.success);
 			updateTermsStatus(terms);

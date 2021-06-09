@@ -2,9 +2,11 @@ package com.mainline.magic.scheduler.dto;
 
 import java.io.Serializable;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 
 @Getter
 @Setter
@@ -28,4 +30,5 @@ public class Terms implements Serializable{
 	private String created;
 	private String updator;
 	private String updated;
+	private String path;
 }

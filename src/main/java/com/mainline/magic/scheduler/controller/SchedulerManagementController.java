@@ -4,7 +4,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Terms;
 import com.mainline.magic.scheduler.service.SchedulerService;
@@ -45,29 +50,39 @@ public class SchedulerManagementController {
 	
 	@RequestMapping(value = "/add-jobs", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> listTerms) {
+		List<Terms> list = new ArrayList<Terms>();
+		Terms t = null;
 		try {
 			for(Terms terms : listTerms) {
+				t = terms;
 				// api 연동 방식
 				if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
 					// history 관리를 위해서 DB에 날라온 정보를 insert 해준다.
-					terms.setMergeId(commonUtils.getUUID());
+					
+					// 실제 사용할때는 증권번호가 날라올것이다.
+					if(terms.getMergeId() == null || terms.getMergeId().trim().length() == 0) {
+						terms.setMergeId(commonUtils.getUUID());
+					}
+					
 					terms.setStatus(CommonUtils.success);
 					terms = commonUtils.setDefaultUser(terms);
 					int result = schedulerService.insertTerms(terms);
 					if(result <= 0) {
-						return new ResponseEntity<>("create data failed", HttpStatus.INTERNAL_SERVER_ERROR);
+						return new ResponseEntity<>(commonUtils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 					}
-
 				}
-//				termsUtils.makeTerms(terms);
 				termsUtils.executor(terms);
+				t = new Terms();
+				t.setMergeId(terms.getMergeId());
+				t.setCode(terms.getCode());
+				list.add(t);
 				log.info("termsUtils.executor");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>("Job create failed", HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("addScheduleJobs Api Terms {} ",t.toString(), e);
+			return new ResponseEntity<>(commonUtils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
+		return new ResponseEntity<>(commonUtils.getResponseJson("Job created successfully", list) , HttpStatus.OK);
 	}
 	
 	
@@ -76,29 +91,48 @@ public class SchedulerManagementController {
 		try {
 			// api 연동 방식
 			if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
-				terms.setMergeId(commonUtils.getUUID());
+				// 실제 사용할때는 증권번호가 날라올것이다.
+				if(terms.getMergeId() == null || terms.getMergeId().trim().length() == 0) {
+					terms.setMergeId(commonUtils.getUUID());
+				}
 				terms.setStatus(CommonUtils.success);
 				terms = commonUtils.setDefaultUser(terms);
 				// 데이터 추가
 				int result = schedulerService.insertTerms(terms);
 				if(result <= 0) {
-					return new ResponseEntity<>("create data failed", HttpStatus.INTERNAL_SERVER_ERROR);
+					return new ResponseEntity<>(commonUtils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
-//			termsUtils.makeTerms(terms);
 			termsUtils.executor(terms);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>("Job created failed", HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("addScheduleJob Api Terms {} ",terms.toString(), e);
+			return new ResponseEntity<>(commonUtils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
+		return new ResponseEntity<>(commonUtils.getResponseJson("Job created successfully", terms) , HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/terms-verification", method = RequestMethod.POST)
+	public ResponseEntity<?> 	termsVerification(@RequestBody  List<Terms> listTerms) {
+		List<Terms> list = null;
+		try {
+			list = schedulerService.termsVerification(listTerms);
+		}catch(Exception e) {
+			log.error("terms-verification Api Terms List {} ", commonUtils.toJsonArrayString(listTerms), e);
+			return new ResponseEntity<>(commonUtils.getResponseJson("List lookup failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(commonUtils.getResponseJson("List lookup successfully", list) , HttpStatus.OK);
 	}
 	
 	
 	@RequestMapping(value = "/mts-file-upload", method = RequestMethod.POST)
-	public ResponseEntity<?> fileUpload(@RequestPart MultipartFile file, @RequestPart String comment) {
+	public ResponseEntity<?> mtsFileUpload(@RequestPart MultipartFile file, @RequestPart String comment) {
 		try {
 			File dir = new File(properties.getMtsPath());
+			
+			// 해당 데이터를 DB에 적재
+			if(comment != null) {
+				
+			}
 			
 			if(!dir.exists()) {
 				log.info("make download directory : "+dir.mkdirs());
@@ -112,14 +146,18 @@ public class SchedulerManagementController {
 			for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null;) {
 				Path resolvedPath = path.resolve(entry.getName());
 				if (!entry.isDirectory()) {
-					Files.createDirectories(resolvedPath.getParent());
-					log.info("copy file size :"+Files.copy(inputStream, resolvedPath));
+					if(!resolvedPath.getParent().toFile().exists()) {
+						Files.createDirectories(resolvedPath.getParent());
+					}
+					log.info("copy file size :"+Files.copy(inputStream, resolvedPath,StandardCopyOption.REPLACE_EXISTING));
 				} else {
-					Files.createDirectories(resolvedPath);
+					if(!resolvedPath.getParent().toFile().exists()) {
+						Files.createDirectories(resolvedPath.getParent());
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("mtsFileUpload Api OriginalFilename {} ",file.getOriginalFilename(), e);
 			return new ResponseEntity<>(" file Upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(" file Upload successfully", HttpStatus.OK);

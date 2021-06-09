@@ -32,7 +32,7 @@ public class McpHttpUtils {
 	public static boolean addJobPost(String url, List<Terms> list) throws IOException {
 		boolean result = false;
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-			final HttpPost httppost = new HttpPost("http://" + url + "/addJobs");
+			final HttpPost httppost = new HttpPost("http://" + url + "/add-jobs");
 			httppost.addHeader("Accept", "application/json");
 			httppost.addHeader("content-type",ContentType.APPLICATION_JSON);
 			Gson gson = new Gson();
@@ -41,12 +41,16 @@ public class McpHttpUtils {
 				final HttpEntity resEntity = response.getEntity();
 				if (resEntity != null) {
 					result = response.getCode() == HttpStatus.SC_OK;
-					log.info("Response content length: " + resEntity.getContentLength());
 					log.info("Response status ok : " + result);
-					
 				}
 				EntityUtils.consume(resEntity);
+			}catch (Exception e) {
+				e.printStackTrace();
+				return result;
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return result;
 		}
 		return result;
 	}
@@ -61,7 +65,7 @@ public class McpHttpUtils {
 	public static boolean addJobPost(String url, Terms terms) throws IOException {
 		boolean result = false;
 		try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-			final HttpPost httppost = new HttpPost("http://" + url + "/addJob");
+			final HttpPost httppost = new HttpPost("http://" + url + "/add-job");
 			httppost.addHeader("Accept", "application/json");
 			httppost.addHeader("content-type",ContentType.APPLICATION_JSON);
 			Gson gson = new Gson();
@@ -70,11 +74,16 @@ public class McpHttpUtils {
 				final HttpEntity resEntity = response.getEntity();
 				if (resEntity != null) {
 					result = response.getCode() == HttpStatus.SC_OK;
-					log.info("Response content length: " + resEntity.getContentLength());
 					log.info("Response status ok : " + result);
 				}
 				EntityUtils.consume(resEntity);
+			}catch (Exception e) {
+				e.printStackTrace();
+				return result;
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return result;
 		}
 		return result;
 	}

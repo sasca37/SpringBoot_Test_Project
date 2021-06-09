@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.quartz.Scheduler;
@@ -45,6 +46,8 @@ public class QuartzConfig {
 	@Autowired
 	private McpProperties mcpProperteis;
 	
+	@Autowired
+	private JobUtils jobUtils;
 	
 	@Autowired
 	private CommonUtils commonUtils;
@@ -64,7 +67,6 @@ public class QuartzConfig {
 		schedulerFactoryBean.setAutoStartup(true);
 		schedulerFactoryBean.setQuartzProperties(quartzProperties());
 		return schedulerFactoryBean;
-//		return null;
 	}
 
 	@Bean
@@ -82,8 +84,7 @@ public class QuartzConfig {
 		return properties;
 	}
 
-	// initMethod 아직 이해 안됨 찾아봐야겠땅..;; 언제 init을 한다는건지..;;;
-	@Bean(initMethod = "init")
+	@PostConstruct
 	public void quartzStarter() throws Exception {
 		
 		// 스케쥴러 내역을 비울지 확인한다.
@@ -93,11 +94,11 @@ public class QuartzConfig {
 		
 		// 마스터 스케쥴러인저 확인한다.
 		if(commonUtils.checkBoolean(mcpProperteis.getMaster())) {
-			List<Trigger> list = JobUtils.getJobs(scheduler, CommonUtils.jobGroup);
-			// 최초 무한 루프 job 관리용 cron job을 생성한다.
+			List<Trigger> list = jobUtils.getJobs(scheduler, CommonUtils.jobGroup);
+			// 최초 무한 루프 cron job을 생성한다.
 			if(list.size() == 0) {
 				// cron job 등록
-				Date date  = JobUtils.createCronJob(CommonUtils.jobName, CommonUtils.jobGroup, CronJob.class, scheduler, null);
+				Date date  = jobUtils.createCronJob(CommonUtils.jobName, CommonUtils.jobGroup, CronJob.class, scheduler, mcpProperteis.getCronExpression());
 				log.info("Schedule registration : "+ commonUtils.getDateToString(date, "yyyy-MM-dd HH:mm:ss"));
 				//scheduler.start();
 			}else {
