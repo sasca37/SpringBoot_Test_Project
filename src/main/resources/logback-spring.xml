@@ -1,22 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE configuration> 
+<!DOCTYPE configuration>
 <configuration scan="true" scanPeriod="30 seconds" debug="true">
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
-    
-    <logger name="jdbc" level="off"/>
-    <logger name="jdbc.sqlonly" level="info"/>
-    <logger name="jdbc.sqltiming" level="off"/>
-    <logger name="jdbc.audit" level="off"/>
-    <logger name="jdbc.resultset" level="off"/>
-    <logger name="jdbc.resultsettable"   level="info"/>
-    <logger name="jdbc.connection" level="off"/>
+	<springProperty name="filePath" source="logging.file.path" />
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger -%msg%n</pattern>
+		</encoder>
+	</appender>
 
-    <root level="info">
-        <appender-ref ref="CONSOLE" />
-    </root>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${filePath}/app.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${filePath}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- <maxFileSize>1GB</maxFileSize> -->
+			<totalSizeCap>1GB</totalSizeCap>
+			<maxHistory>20</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger -%msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="jdbc" level="off" />
+	<logger name="jdbc.sqlonly" level="info" />
+	<logger name="jdbc.sqltiming" level="off" />
+	<logger name="jdbc.audit" level="off" />
+	<logger name="jdbc.resultset" level="off" />
+	<logger name="jdbc.resultsettable" level="info" />
+	<logger name="jdbc.connection" level="off" />
+	<logger name="com.mainline.magic.scheduler" level="info" />
+
+	<root level="info">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
 </configuration>
