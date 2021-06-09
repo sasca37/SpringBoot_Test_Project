@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mainline.magic.scheduler.dao.PublishingDao">
+	<insert id="insertPublishing">
+		INSERT INTO MCP_PUBLISHING(
+		  	VERSION_ID
+		  	,PRODUCT_CODE
+		  	,SALE_START_DATE
+		  	,SALE_END_DATE
+		  	,PATH
+		  	,CREATOR
+		)VALUES(
+		  	#{versionId}
+		  	,#{productCode}
+		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,#{path}
+		  	,#{creator}
+		)
+	</insert>
+	
+	<select id="getPublishingOne" resultType="Publishing">
+		SELECT  
+			VERSION_ID
+		  	,PRODUCT_CODE
+		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_START_DATE
+		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_END_DATE
+		  	,PATH
+		  	,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+		  	,CREATOR
+		FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</select>
+	
+	<delete id="deletePublishing">
+		DELETE FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+</mapper>

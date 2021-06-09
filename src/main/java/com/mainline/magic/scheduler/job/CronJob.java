@@ -25,20 +25,27 @@ import lombok.extern.slf4j.Slf4j;
 public class CronJob extends QuartzJobBean {
 
 	@Autowired
-	SchedulerService schedulerService;
+	private SchedulerService schedulerService;
 	
 	@Autowired
 	private McpProperties mcpProperteis;
+	
+	@Autowired
+	private McpHttpUtils httpUtils;
+	
+	@Autowired
+	private CommonUtils utils;
 
 	/**
 	 * 요청 작업을 분배해서 본인 포함 다은 스케쥴러 서버에 작업을 분배하여 준다.
 	 */
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+		List<Terms> list = null;
 		try {
 			log.info("================= CronJob =================");
 			// 단일 모드 동작 여부
-			List<Terms> list = schedulerService.getTerms();
+			list = schedulerService.getTerms();
 			int total = list.size();
 			if(total == 0) {
 				Thread.sleep(2000);
@@ -66,7 +73,7 @@ public class CronJob extends QuartzJobBean {
 			}
 			
 		} catch (InterruptedException | IOException e) {
-			e.printStackTrace();
+			log.error("CronJob executeInternal List : {} ",utils.toJsonArrayString(list),e);
 		}
 	}
 
@@ -100,7 +107,7 @@ public class CronJob extends QuartzJobBean {
 		for(Terms terms : list) {
 			terms.setStatus(CommonUtils.success);
 			updateTermsStatus(terms);
-			if(McpHttpUtils.addJobPost(url, terms)) {
+			if(httpUtils.addJobPost(url, terms)) {
 				log.info("http addJobPost success");
 			}else {
 				terms.setStatus(CommonUtils.fail);
@@ -129,7 +136,7 @@ public class CronJob extends QuartzJobBean {
 				url = schedulers.get(i).get("INSTANCE_NAME").toString();
 				// DB 상태 변경
 				updateTermsStatus(partition.get(i), CommonUtils.success);
-				if(McpHttpUtils.addJobPost(url, partition.get(i))) {
+				if(httpUtils.addJobPost(url, partition.get(i))) {
 					log.info("http addJobPost success");
 				}else {
 					// 전송 실패로 표시
@@ -146,7 +153,7 @@ public class CronJob extends QuartzJobBean {
 						url = schedulers.get(i - 1).get("INSTANCE_NAME").toString();
 						// DB 상태 변경
 						updateTermsStatus(result, CommonUtils.success);
-						if(McpHttpUtils.addJobPost(url, result)) {
+						if(httpUtils.addJobPost(url, result)) {
 							log.info("http addJobPost success");
 						}else {
 							// 전송 실패로 표시
@@ -161,7 +168,7 @@ public class CronJob extends QuartzJobBean {
 					url = schedulers.get(i).get("INSTANCE_NAME").toString();
 					// DB 상태 변경
 					updateTermsStatus(result, CommonUtils.success);
-					if(McpHttpUtils.addJobPost(url, result)) {
+					if(httpUtils.addJobPost(url, result)) {
 						log.info("http addJobPost success");
 					}else {
 						// 전송 실패로 표시

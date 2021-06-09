@@ -28,7 +28,7 @@
 	
 	<select id="getTermsLI" resultType="Terms">
 		SELECT  
-			<!--  MERGE_ID 사용하면 LOMBOK 이 못읽음.. 이유 모름-->
+			<!--  MERGE_ID 사용하면 LOMBOK 이 못읽음.. 이유 모름 // 설정 추가로 이 현상 없음-->
 			MERGE_ID AS MERGEID
 			,CODE
 			,STATUS
@@ -146,4 +146,45 @@
             </when>
         </choose>
 	</select>
+	
+	
+	<insert id="insertPublishing">
+		INSERT INTO MCP_PUBLISHING(
+		  	VERSION_ID
+		  	,PRODUCT_CODE
+		  	,SALE_START_DATE
+		  	,SALE_END_DATE
+		  	,PATH
+		  	,CREATOR
+		)VALUES(
+		  	#{versionId}
+		  	,#{productCode}
+		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,#{path}
+		  	,#{creator}
+		)
+	</insert>
+	
+	<select id="getPublishingOne" resultType="Publishing">
+		SELECT  
+			VERSION_ID
+		  	,PRODUCT_CODE
+		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_START_DATE
+		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_END_DATE
+		  	,PATH
+		  	,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+		  	,CREATOR
+		FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</select>
+	
+	<delete id="deletePublishing">
+		DELETE FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
 </mapper>

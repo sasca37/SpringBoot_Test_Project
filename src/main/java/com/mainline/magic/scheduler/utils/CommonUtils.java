@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mainline.magic.scheduler.config.McpProperties;
+import com.mainline.magic.scheduler.dto.Publishing;
 import com.mainline.magic.scheduler.dto.Terms;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +40,28 @@ public class CommonUtils {
 	private McpProperties properties;
 	
 	
+	/**
+	 * String true, false 를 boolean type으로 변환용
+	 * @param str
+	 * @return
+	 */
 	public boolean checkBoolean(String str) {
 		return Boolean.valueOf(str != null ? str : "false");
 	}
 	
+	/**
+	 * uuid 생성용
+	 * @return
+	 */
 	public String getUUID() {
 		return UUID.randomUUID().toString().replaceAll("-", "");
 	}
 	
+	/**
+	 * Terms 기본 유저 세팅 : default SYSTEM
+	 * @param terms
+	 * @return
+	 */
 	public Terms setDefaultUser(Terms terms) {
 		if(terms.getCreator() == null || terms.getCreator().trim().length() == 0) {
 			terms.setCreator(defaultUser);
@@ -58,10 +73,43 @@ public class CommonUtils {
 		return terms;
 	}
 	
+	/**
+	 * Date 문자 변환용
+	 * @param date
+	 * @param pattern
+	 * @return
+	 */
 	public String getDateToString(Date date, String pattern) {
 		SimpleDateFormat format = new SimpleDateFormat(pattern);
 		return format.format(date);
 	}
+	
+
+	/**
+	 * json string을 object로 변환
+	 * @param <T>
+	 * @param json
+	 * @param clazz
+	 * @return
+	 */
+	public  <T>T fromJsonObject(String json, Class<T> clazz) {
+		return clazz.cast(gson.fromJson(json, clazz));
+	}
+	
+	/**
+	 * obj 를 json string 으로 변환
+	 * @param obj
+	 * @return
+	 */
+	public String toJsonString(Object obj) {
+		return gson.toJson(obj);
+	}
+	
+	/**
+	 * list를 json string 으로 변환
+	 * @param list
+	 * @return
+	 */
 	public String toJsonArrayString(List<?> list) {
 		if(list != null) {
 			JsonArray array = gson.fromJson(gson.toJson(list), JsonArray.class);
@@ -71,6 +119,12 @@ public class CommonUtils {
 		}
 	}
 	
+	/**
+	 * api 결과 반환용 메소드 code X
+	 * @param msg
+	 * @param obj
+	 * @return
+	 */
 	public String getResponseJson(String msg, Object obj) {
 		JsonObject object = new JsonObject();
 		object.addProperty(msgStr, msg);
@@ -84,6 +138,13 @@ public class CommonUtils {
 		return gson.toJson(object);
 	}
 	
+	/**
+	 * api 결과 변환용 메소드 code O
+	 * @param msg
+	 * @param code
+	 * @param obj
+	 * @return
+	 */
 	public String getResponseJson(String msg, String code, Object obj) {
 		JsonObject object = new JsonObject();
 		object.addProperty(msgStr, msg);
@@ -98,6 +159,10 @@ public class CommonUtils {
 		return gson.toJson(object);
 	}
 	
+	/**
+	 * 생보 손보 체크용
+	 * @return
+	 */
 	public boolean isInsuranceTypeLI() {
 		if(LI.equals(properties.getInsuranceType())) {
 			return true;

@@ -11,7 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -27,17 +26,19 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.quartz.JobKey;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.mainline.magic.scheduler.dao.SchedulerDao;
 import com.mainline.magic.scheduler.dto.Terms;
 import com.mainline.magic.scheduler.service.SchedulerService;
 
-@RunWith(SpringRunner.class)
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class MagicSchedulerApplicationTests {
 	@Autowired

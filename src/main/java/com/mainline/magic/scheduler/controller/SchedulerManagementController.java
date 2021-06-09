@@ -24,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mainline.magic.scheduler.config.McpProperties;
+import com.mainline.magic.scheduler.dto.Publishing;
 import com.mainline.magic.scheduler.dto.Terms;
+import com.mainline.magic.scheduler.service.PublishingService;
 import com.mainline.magic.scheduler.service.SchedulerService;
 import com.mainline.magic.scheduler.utils.CommonUtils;
 import com.mainline.magic.scheduler.utils.TermsUtils;
@@ -39,13 +41,16 @@ public class SchedulerManagementController {
 	private McpProperties properties;
 
 	@Autowired
-	private CommonUtils commonUtils;
+	private CommonUtils utils;
 	
 	@Autowired
 	private TermsUtils termsUtils;
 	
 	@Autowired
 	private SchedulerService schedulerService;
+	
+	@Autowired
+	private PublishingService publishingService;
 		
 	
 	@RequestMapping(value = "/add-jobs", method = RequestMethod.POST)
@@ -56,19 +61,19 @@ public class SchedulerManagementController {
 			for(Terms terms : listTerms) {
 				t = terms;
 				// api 연동 방식
-				if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
+				if(!utils.checkBoolean(properties.getQuartzDb())) {
 					// history 관리를 위해서 DB에 날라온 정보를 insert 해준다.
 					
 					// 실제 사용할때는 증권번호가 날라올것이다.
 					if(terms.getMergeId() == null || terms.getMergeId().trim().length() == 0) {
-						terms.setMergeId(commonUtils.getUUID());
+						terms.setMergeId(utils.getUUID());
 					}
 					
 					terms.setStatus(CommonUtils.success);
-					terms = commonUtils.setDefaultUser(terms);
+					terms = utils.setDefaultUser(terms);
 					int result = schedulerService.insertTerms(terms);
 					if(result <= 0) {
-						return new ResponseEntity<>(commonUtils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+						return new ResponseEntity<>(utils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				}
 				termsUtils.executor(terms);
@@ -76,13 +81,12 @@ public class SchedulerManagementController {
 				t.setMergeId(terms.getMergeId());
 				t.setCode(terms.getCode());
 				list.add(t);
-				log.info("termsUtils.executor");
 			}
 		} catch (Exception e) {
 			log.error("addScheduleJobs Api Terms {} ",t.toString(), e);
-			return new ResponseEntity<>(commonUtils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(commonUtils.getResponseJson("Job created successfully", list) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("Job created successfully", list) , HttpStatus.OK);
 	}
 	
 	
@@ -90,25 +94,25 @@ public class SchedulerManagementController {
 	public ResponseEntity<?> addScheduleJob(@RequestBody  Terms terms) {
 		try {
 			// api 연동 방식
-			if(!commonUtils.checkBoolean(properties.getQuartzDb())) {
+			if(!utils.checkBoolean(properties.getQuartzDb())) {
 				// 실제 사용할때는 증권번호가 날라올것이다.
 				if(terms.getMergeId() == null || terms.getMergeId().trim().length() == 0) {
-					terms.setMergeId(commonUtils.getUUID());
+					terms.setMergeId(utils.getUUID());
 				}
 				terms.setStatus(CommonUtils.success);
-				terms = commonUtils.setDefaultUser(terms);
+				terms = utils.setDefaultUser(terms);
 				// 데이터 추가
 				int result = schedulerService.insertTerms(terms);
 				if(result <= 0) {
-					return new ResponseEntity<>(commonUtils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+					return new ResponseEntity<>(utils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
 			termsUtils.executor(terms);
 		} catch (Exception e) {
 			log.error("addScheduleJob Api Terms {} ",terms.toString(), e);
-			return new ResponseEntity<>(commonUtils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(commonUtils.getResponseJson("Job created successfully", terms) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("Job created successfully", terms) , HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/terms-verification", method = RequestMethod.POST)
@@ -117,10 +121,10 @@ public class SchedulerManagementController {
 		try {
 			list = schedulerService.termsVerification(listTerms);
 		}catch(Exception e) {
-			log.error("terms-verification Api Terms List {} ", commonUtils.toJsonArrayString(listTerms), e);
-			return new ResponseEntity<>(commonUtils.getResponseJson("List lookup failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("terms-verification Api Terms List {} ", utils.toJsonArrayString(listTerms), e);
+			return new ResponseEntity<>(utils.getResponseJson("List lookup failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(commonUtils.getResponseJson("List lookup successfully", list) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("List lookup successfully", list) , HttpStatus.OK);
 	}
 	
 	
@@ -131,7 +135,20 @@ public class SchedulerManagementController {
 			
 			// 해당 데이터를 DB에 적재
 			if(comment != null) {
-				
+				Publishing publishing =  utils.fromJsonObject(comment, Publishing.class);
+				Publishing p = publishingService.getPublishingOne(publishing.getVersionId());
+				if(p != null) {
+					int cnt = publishingService.deletePublishing(p.getVersionId());
+					if(cnt > 0 ) {
+						cnt = publishingService.insertPublishing(publishing);
+						log.info("publishing data insert count : "+ cnt);
+					}else {
+						log.info("publishing data delete fail");
+					}
+				}else {
+					int cnt = publishingService.insertPublishing(publishing);
+					log.info("publishing data insert count : "+ cnt);
+				}
 			}
 			
 			if(!dir.exists()) {

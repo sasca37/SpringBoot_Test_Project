@@ -110,10 +110,20 @@ public class TermsUtils {
 			}
 		}
 	}
+	/**
+	 * 상태 코드 업데이트
+	 * @param terms
+	 * @return
+	 */
 	private int updateStatus(Terms terms) {
 		return schedulerService.updateTermsStatus(terms);
 	}
 
+	/**
+	 * 실제 약관 제작을 하는 Runnable
+	 * @author mainline
+	 *
+	 */
 	class Worker implements Runnable {
 		private Terms terms;
 
@@ -121,6 +131,10 @@ public class TermsUtils {
 			this.terms = terms;
 		}
 		
+		/**
+		 * @param key
+		 * @return
+		 */
 		private File createErrorDir(String key) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			String date = sdf.format(new Date());
@@ -134,6 +148,11 @@ public class TermsUtils {
 			return file;
 		}
 		
+		/**
+		 * @param f
+		 * @param errMsg
+		 * @throws Exception
+		 */
 		private void createErrorFile(File f, String errMsg) throws Exception{
 			OutputStreamWriter os = null;
 			FileOutputStream fos = null;
@@ -144,15 +163,15 @@ public class TermsUtils {
 				os.write(errMsg);
 				os.flush();
 			}finally {
-				if(fos != null) {
-					try {
+				try {
+					if(fos != null) {
 						fos.close();
-					}catch(Exception e) {}
-				}
-				if(os != null) {
-					try {
+					}
+					if(os != null) {
 						os.close();
-					}catch(Exception e) {}
+					}
+				}catch(Exception e) {
+					log.error("createErrorFile method ",e);
 				}
 			}
 		}
@@ -196,7 +215,7 @@ public class TermsUtils {
 									File f = createErrorDir(key);
 									createErrorFile(f, AbstractUserTerms.errorToStr(t));
 								}catch(Exception e) {
-									e.printStackTrace();
+									log.error("Worker errorProcess key : {} ", key, t);
 								}
 							}
 				};
@@ -223,12 +242,13 @@ public class TermsUtils {
 				terms.setStatus(CommonUtils.makeFail);
 				updateStatus(terms);
 				// 에러 파일 생성
-				e.printStackTrace();
+				
+				log.error("Worker run terms : {} ", terms.toString(), e);
 				try {
 					File f = createErrorDir(terms.getMergeId());
 					createErrorFile(f, AbstractUserTerms.errorToStr(e));
 				}catch(Exception ee) {
-					ee.printStackTrace();
+					log.error("Worker run createErrorFile ", ee);
 				}
 			} 
 		}
