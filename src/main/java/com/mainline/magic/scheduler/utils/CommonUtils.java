@@ -12,12 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mainline.magic.scheduler.config.McpProperties;
-import com.mainline.magic.scheduler.dto.Publishing;
 import com.mainline.magic.scheduler.dto.Terms;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Component
 public class CommonUtils {
 	
@@ -93,7 +89,7 @@ public class CommonUtils {
 	 * @return
 	 */
 	public  <T>T fromJsonObject(String json, Class<T> clazz) {
-		return clazz.cast(gson.fromJson(json, clazz));
+		return gson.fromJson(json, clazz);
 	}
 	
 	/**
