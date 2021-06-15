@@ -6,8 +6,10 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
@@ -87,8 +89,9 @@ public class TermsUtils {
 	 * 약관 제작 실행 Runnable 실행
 	 * @param terms
 	 */
-	public void executor(Terms terms) {
-		executorService.submit(new Worker(terms));
+	public Future<Terms> executor(Terms terms) {
+//		return executorService.submit(new Worker(terms));
+		return executorService.submit(new CallWork(terms));
 	}
 	
 	/**
@@ -252,5 +255,138 @@ public class TermsUtils {
 				}
 			} 
 		}
+	}
+	
+	class CallWork implements Callable<Terms>{
+		private Terms terms;
+
+		public CallWork(Terms terms) {
+			this.terms = terms;
+		}
+		
+		/**
+		 * @param key
+		 * @return
+		 */
+		private File createErrorDir(String key) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			String date = sdf.format(new Date());
+			
+			File f = new File(BatchProperties.getMtsResultPath(), date);
+			if(!f.exists()) {
+				f.mkdir();
+			}
+			
+			File file = new File(f, key + ".txt");
+			return file;
+		}
+		
+		/**
+		 * @param f
+		 * @param errMsg
+		 * @throws Exception
+		 */
+		private void createErrorFile(File f, String errMsg) throws Exception{
+			OutputStreamWriter os = null;
+			FileOutputStream fos = null;
+			try {
+				fos = new FileOutputStream(f);
+				os = new OutputStreamWriter(fos, "UTF-8");
+				
+				os.write(errMsg);
+				os.flush();
+			}finally {
+				try {
+					if(fos != null) {
+						fos.close();
+					}
+					if(os != null) {
+						os.close();
+					}
+				}catch(Exception e) {
+					log.error("createErrorFile method ",e);
+				}
+			}
+		}
+
+		@Override
+		public Terms call() throws Exception {
+			// 진행중 상태변경
+			terms.setStatus(CommonUtils.start);
+			log.info(Thread.currentThread().getName() + "    MergeId : "+ terms.getMergeId());
+			boolean isSuccess[] = {true};
+			try {
+				File mtsDir = new File(BatchProperties.getMtsPath());
+
+				ProductInfo product = null;
+
+				if (PropertyConstance.isInsuranceTypeLI()) {
+					product = BaseUserTerms.makeProductInfoLI(terms.getCode());
+				} else {
+					product = BaseUserTerms.makeProductInfoGI(terms.getId(), terms.getCode());
+				}
+
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				String date = format.format(new Date());
+				
+				final String key = terms.getMergeId();
+
+				BaseUserTerms bt = new BaseUserTerms(null, product.getProductName(),
+						PropertyConstance.getDocumentType(), PropertyConstance.getInsuranceType()) {
+							@Override
+							public void deleteTempFile(File[] files, String name) {
+								super.deleteTempFile(files, key + ".pdf");
+							}
+
+							@Override
+							public void errorProcess(Throwable t) {
+								super.errorProcess(t);
+								
+								isSuccess[0] = false;
+								try {
+									release();
+									File f = createErrorDir(key);
+									createErrorFile(f, AbstractUserTerms.errorToStr(t));
+								}catch(Exception e) {
+									log.error("Worker errorProcess key : {} ", key, t);
+								}
+							}
+				};
+				
+				bt.OUTPUT_DIR = new File(BatchProperties.getMtsResultPath() + File.separator + date + File.separator
+						+ terms.getMergeId());
+				terms.setPath(bt.OUTPUT_DIR.getAbsolutePath());
+				bt.init();
+				bt.setResultFileName(terms.getMergeId());
+				bt.setMtsDir(mtsDir);
+				bt.setInfo(product);
+				bt.merge();
+				
+				//완료 상태변경
+				if(isSuccess[0]) {
+					terms.setStatus(CommonUtils.end);
+					updateStatus(terms);
+				}else {
+					terms.setStatus(CommonUtils.makeFail);
+					updateStatus(terms);
+				}
+
+			} catch (Exception e) {
+				terms.setStatus(CommonUtils.makeFail);
+				updateStatus(terms);
+				// 에러 파일 생성
+				
+				log.error("Worker run terms : {} ", terms.toString(), e);
+				try {
+					File f = createErrorDir(terms.getMergeId());
+					createErrorFile(f, AbstractUserTerms.errorToStr(e));
+				}catch(Exception ee) {
+					log.error("Worker run createErrorFile ", ee);
+				}
+			} // TODO Auto-generated method stub
+//			terms.setCreator(Thread.currentThread().getName());
+			return terms;
+		}
+		
 	}
 }

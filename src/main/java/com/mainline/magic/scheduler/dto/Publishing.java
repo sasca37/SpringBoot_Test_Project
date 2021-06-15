@@ -20,5 +20,7 @@ public class Publishing implements Serializable{
 	private String path;
 	private String created;
 	private String creator;
+	private String codes;
+	private String conditions;
 	
 }

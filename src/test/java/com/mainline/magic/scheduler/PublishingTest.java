@@ -56,8 +56,13 @@ public class PublishingTest {
 	}
 	
 	public void deletePublishing(String versionId) {
-		int cnt = service.deletePublishing(versionId);
-		log.info(" delete count : "+ cnt);
+		try {
+			int cnt = service.deletePublishing(versionId);
+			log.info(" delete count : "+ cnt);
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 	
 	public void getPublishing(String versionId) {

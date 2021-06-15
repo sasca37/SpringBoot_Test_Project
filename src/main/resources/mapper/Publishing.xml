@@ -12,10 +12,30 @@
 		)VALUES(
 		  	#{versionId}
 		  	,#{productCode}
-		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD HH24:MI:SS')
-		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD')
+		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD')
 		  	,#{path}
 		  	,#{creator}
+		)
+	</insert>
+	
+	<insert id="insertPublishingCode">
+		INSERT INTO MCP_PUBLISHING_CODE(
+		  	VERSION_ID
+		  	,CODES
+		)VALUES(
+		  	#{versionId}
+		  	,#{codes}
+		)
+	</insert>
+	
+	<insert id="insertPublishingCondition">
+		INSERT INTO MCP_PUBLISHING_CONDITION(
+		  	VERSION_ID
+		  	,CONDITIONS
+		)VALUES(
+		  	#{versionId}
+		  	,#{conditions}
 		)
 	</insert>
 	
@@ -23,8 +43,8 @@
 		SELECT  
 			VERSION_ID
 		  	,PRODUCT_CODE
-		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_START_DATE
-		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_END_DATE
+		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD') AS SALE_START_DATE
+		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD') AS SALE_END_DATE
 		  	,PATH
 		  	,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
 		  	,CREATOR
@@ -37,6 +57,21 @@
 	<delete id="deletePublishing">
 		DELETE FROM 
 			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+	
+	<delete id="deletePublishingCode">
+		DELETE FROM 
+			MCP_PUBLISHING_CODE
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+	
+	
+	<delete id="deletePublishingCondition">
+		DELETE FROM 
+			MCP_PUBLISHING_CONDITION
 		WHERE
 			VERSION_ID = #{versionId}	
 	</delete>

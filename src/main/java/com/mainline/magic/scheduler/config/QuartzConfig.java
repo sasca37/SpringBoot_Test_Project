@@ -56,7 +56,6 @@ public class QuartzConfig {
 
 	@Bean
 	public SchedulerFactoryBean schedulerFactory() throws SchedulerException, UnknownHostException {
-		log.info("SchedulerFactoryBean created!");
 		SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
 		jobFactory.setApplicationContext(applicationContext);

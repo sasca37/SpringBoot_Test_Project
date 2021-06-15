@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -93,6 +94,7 @@ public class SchedulerManagementController {
 	@RequestMapping(value = "/add-job", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJob(@RequestBody  Terms terms) {
 		try {
+			log.info("========================addScheduleJob========================");
 			// api 연동 방식
 			if(!utils.checkBoolean(properties.getQuartzDb())) {
 				// 실제 사용할때는 증권번호가 날라올것이다.
@@ -107,7 +109,9 @@ public class SchedulerManagementController {
 					return new ResponseEntity<>(utils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
-			termsUtils.executor(terms);
+			Future<Terms> future = termsUtils.executor(terms);
+			terms = future.get();
+			log.info("result : " + terms.toString());
 		} catch (Exception e) {
 			log.error("addScheduleJob Api Terms {} ",terms.toString(), e);
 			return new ResponseEntity<>(utils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -130,26 +134,10 @@ public class SchedulerManagementController {
 	
 	@RequestMapping(value = "/mts-file-upload", method = RequestMethod.POST)
 	public ResponseEntity<?> mtsFileUpload(@RequestPart MultipartFile file, @RequestPart String comment) {
+		log.info("======================== Call Method mtsFileUpload ========================");
 		try {
+			String dirPath = null;
 			File dir = new File(properties.getMtsPath());
-			
-			// 해당 데이터를 DB에 적재
-			if(comment != null) {
-				Publishing publishing =  utils.fromJsonObject(comment, Publishing.class);
-				Publishing p = publishingService.getPublishingOne(publishing.getVersionId());
-				if(p != null) {
-					int cnt = publishingService.deletePublishing(p.getVersionId());
-					if(cnt > 0 ) {
-						cnt = publishingService.insertPublishing(publishing);
-						log.info("publishing data insert count : "+ cnt);
-					}else {
-						log.info("publishing data delete fail");
-					}
-				}else {
-					int cnt = publishingService.insertPublishing(publishing);
-					log.info("publishing data insert count : "+ cnt);
-				}
-			}
 			
 			if(!dir.exists()) {
 				log.info("make download directory : "+dir.mkdirs());
@@ -162,6 +150,9 @@ public class SchedulerManagementController {
 		
 			for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null;) {
 				Path resolvedPath = path.resolve(entry.getName());
+				if(dirPath == null) {
+					dirPath = resolvedPath.toString();
+				}
 				if (!entry.isDirectory()) {
 					if(!resolvedPath.getParent().toFile().exists()) {
 						Files.createDirectories(resolvedPath.getParent());
@@ -173,8 +164,29 @@ public class SchedulerManagementController {
 					}
 				}
 			}
+			
+			// 해당 데이터를 DB에 적재
+			if(comment != null) {
+				log.info(comment);
+				Publishing publishing =  utils.fromJsonObject(comment, Publishing.class);
+				Publishing p = publishingService.getPublishingOne(publishing.getVersionId());
+				if(p != null) {
+					int cnt = publishingService.deletePublishing(p.getVersionId());
+					if(cnt > 0 ) {
+						publishing.setPath(dirPath);
+						cnt = publishingService.insertPublishing(publishing);
+						log.info("publishing data insert count : "+ cnt);
+					}else {
+						log.info("publishing data delete fail");
+					}
+				}else {
+					publishing.setPath(dirPath);
+					int cnt = publishingService.insertPublishing(publishing);
+					log.info("publishing data insert count : "+ cnt);
+				}
+			}
 		} catch (Exception e) {
-			log.error("mtsFileUpload Api OriginalFilename {} ",file.getOriginalFilename(), e);
+			log.error("mtsFileUpload Api OriginalFilename : {}  , comment : {}",file.getOriginalFilename(), comment, e);
 			return new ResponseEntity<>(" file Upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(" file Upload successfully", HttpStatus.OK);
