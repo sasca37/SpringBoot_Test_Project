@@ -27,6 +27,11 @@ public class McpHttpUtils {
 
 	@Autowired
 	private CommonUtils utils;
+	
+	private String addJobs = "/add/jobs";
+	private String addJob = "/add/job";
+	
+	
 	/**
 	 * 여러건의 작업정보를 보낸다.
 	 * @param url
@@ -38,7 +43,7 @@ public class McpHttpUtils {
 		boolean result = false;
 		try{
 			final CloseableHttpClient httpclient = HttpClients.createDefault();
-			final HttpPost httppost = new HttpPost("http://" + url + "/add-jobs");
+			final HttpPost httppost = new HttpPost("http://" + url + addJobs);
 			httppost.addHeader("Accept", "application/json");
 			httppost.addHeader("content-type",ContentType.APPLICATION_JSON);
 			
@@ -69,7 +74,7 @@ public class McpHttpUtils {
 		boolean result = false;
 		try{
 			final CloseableHttpClient httpclient = HttpClients.createDefault();
-			final HttpPost httppost = new HttpPost("http://" + url + "/add-job");
+			final HttpPost httppost = new HttpPost("http://" + url + addJob);
 			httppost.addHeader("Accept", "application/json");
 			httppost.addHeader("content-type",ContentType.APPLICATION_JSON);
 			Gson gson = new Gson();
@@ -83,6 +88,38 @@ public class McpHttpUtils {
 			EntityUtils.consume(resEntity);
 		}catch (Exception e) {
 			log.error("addJobPost terms url : {} terms {}",url,terms,e);
+			return result;
+		}
+		return result;
+	}
+	
+
+	/**
+	 * @param url
+	 * @param body
+	 * @return
+	 */
+	public String httpPost(String url, String jsonBody)  {
+		String result = null;
+		try{
+			final CloseableHttpClient httpclient = HttpClients.createDefault();
+			final HttpPost httppost = new HttpPost(url);
+			httppost.addHeader("Accept", "application/json");
+			httppost.addHeader("content-type",ContentType.APPLICATION_JSON);
+			httppost.setEntity(new StringEntity(jsonBody));
+			final CloseableHttpResponse response = httpclient.execute(httppost);
+			final HttpEntity resEntity = response.getEntity();
+			if (resEntity != null) {
+				boolean flag = response.getCode() == HttpStatus.SC_OK;
+				if(flag) {
+					return  EntityUtils.toString(resEntity);
+				}else {
+					log.info("httpPost  url : {}, body {}, response code : {}",url,jsonBody, response.getCode());
+				}
+			}
+			EntityUtils.consume(resEntity);
+		}catch (Exception e) {
+			log.error("httpPost  url : {} body {}",url,jsonBody,e);
 			return result;
 		}
 		return result;

@@ -16,12 +16,17 @@ import com.mainline.magic.scheduler.dto.Terms;
 
 @Component
 public class CommonUtils {
+	public static final String httpSuccess = "00";
+	public static final String httpError = "100";
+	public static final String httpFail = "99";
+	
 	
 	public static final String success = "02";
 	public static final String start = "03";
 	public static final String end = "04";
 	public static final String fail = "98";
 	public static final String makeFail = "99";
+
 	public static final String jobName = "MainLineJob";
 	public static final String jobGroup = "MainLineJobGroup";
 	public static final String defaultUser = "SYSTEM";
@@ -127,12 +132,16 @@ public class CommonUtils {
 		if(obj != null) {
 			if(obj instanceof List) {
 				object.add(dataStr, 	gson.fromJson(gson.toJson(obj), JsonArray.class));	
+			}else if(obj instanceof String) {
+				object.addProperty(dataStr, (String)obj);
 			}else {
 				object.add(dataStr, 	gson.fromJson(gson.toJson(obj), JsonObject.class));	
 			}
 		}
 		return gson.toJson(object);
 	}
+	
+
 	
 	/**
 	 * api 결과 변환용 메소드 code O

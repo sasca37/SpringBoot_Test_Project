@@ -4,14 +4,18 @@
 	<insert id="insertPublishing">
 		INSERT INTO MCP_PUBLISHING(
 		  	VERSION_ID
-		  	,PRODUCT_CODE
+		  	<if test="productCode != null and !productCode.equals('null')">
+		  		,PRODUCT_CODE
+		  	</if>
 		  	,SALE_START_DATE
 		  	,SALE_END_DATE
 		  	,PATH
 		  	,CREATOR
 		)VALUES(
 		  	#{versionId}
-		  	,#{productCode}
+		  	<if test="productCode != null and !productCode.equals('null')">
+		  		,#{productCode}
+		  	</if>
 		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD')
 		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD')
 		  	,#{path}
@@ -38,6 +42,12 @@
 		  	,#{conditions}
 		)
 	</insert>
+	
+	<update id="updateSaleEndDate">
+		UPDATE MCP_PUBLISHING 
+		SET SALE_END_DATE = TO_DATE(#{saleEndDate},'YYYY-MM-DD')
+		WHERE VERSION_ID = #{versionId}
+	</update>
 	
 	<select id="getPublishingOne" resultType="Publishing">
 		SELECT  

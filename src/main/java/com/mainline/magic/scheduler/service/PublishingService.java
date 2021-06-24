@@ -60,6 +60,10 @@ public class PublishingService {
 		return publishingDao.insertPublishingCode(versionId, codes);
 	}
 	
+	public int updateSaleEndDate(String versionId, String saleEndDate) {
+		return publishingDao.updateSaleEndDate(versionId, saleEndDate);
+	}
+	
 	public int deletePublishing(String versionId) throws Exception{
 		deletePublishingCode(versionId);
 		deletePublishingCondition(versionId);

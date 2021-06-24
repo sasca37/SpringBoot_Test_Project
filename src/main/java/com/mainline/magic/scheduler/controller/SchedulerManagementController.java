@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -22,15 +21,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mainline.magic.scheduler.config.McpProperties;
 import com.mainline.magic.scheduler.dto.Publishing;
 import com.mainline.magic.scheduler.dto.Terms;
 import com.mainline.magic.scheduler.service.PublishingService;
 import com.mainline.magic.scheduler.service.SchedulerService;
+import com.mainline.magic.scheduler.terms.TermsExecutor;
 import com.mainline.magic.scheduler.utils.CommonUtils;
-import com.mainline.magic.scheduler.utils.TermsUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +42,7 @@ public class SchedulerManagementController {
 	private CommonUtils utils;
 	
 	@Autowired
-	private TermsUtils termsUtils;
+	private TermsExecutor termsExecutor;
 	
 	@Autowired
 	private SchedulerService schedulerService;
@@ -54,7 +51,7 @@ public class SchedulerManagementController {
 	private PublishingService publishingService;
 		
 	
-	@RequestMapping(value = "/add-jobs", method = RequestMethod.POST)
+	@RequestMapping(value = "/add/jobs", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> listTerms) {
 		List<Terms> list = new ArrayList<Terms>();
 		Terms t = null;
@@ -74,10 +71,10 @@ public class SchedulerManagementController {
 					terms = utils.setDefaultUser(terms);
 					int result = schedulerService.insertTerms(terms);
 					if(result <= 0) {
-						return new ResponseEntity<>(utils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+						return new ResponseEntity<>(utils.getResponseJson("create data failed", CommonUtils.httpFail), HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				}
-				termsUtils.executor(terms);
+				termsExecutor.callWorkerExecutor(terms);
 				t = new Terms();
 				t.setMergeId(terms.getMergeId());
 				t.setCode(terms.getCode());
@@ -85,13 +82,13 @@ public class SchedulerManagementController {
 			}
 		} catch (Exception e) {
 			log.error("addScheduleJobs Api Terms {} ",t.toString(), e);
-			return new ResponseEntity<>(utils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson("Job created failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(utils.getResponseJson("Job created successfully", list) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("Job created successfully",CommonUtils.httpSuccess, list) , HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/add-job", method = RequestMethod.POST)
+	@RequestMapping(value = "/add/job", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJob(@RequestBody  Terms terms) {
 		try {
 			log.info("========================addScheduleJob========================");
@@ -106,17 +103,33 @@ public class SchedulerManagementController {
 				// 데이터 추가
 				int result = schedulerService.insertTerms(terms);
 				if(result <= 0) {
-					return new ResponseEntity<>(utils.getResponseJson("create data failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+					return new ResponseEntity<>(utils.getResponseJson("create data failed", CommonUtils.httpFail), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
-			Future<Terms> future = termsUtils.executor(terms);
+			Future<Terms> future = termsExecutor.callWorkerExecutor(terms);
 			terms = future.get();
 			log.info("result : " + terms.toString());
 		} catch (Exception e) {
 			log.error("addScheduleJob Api Terms {} ",terms.toString(), e);
-			return new ResponseEntity<>(utils.getResponseJson("Job created failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson("Job created failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(utils.getResponseJson("Job created successfully", terms) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("Job created successfully", CommonUtils.httpSuccess) , HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/update/sale-end-date", method = RequestMethod.POST)
+	public ResponseEntity<?> updateSaleEndDate(@RequestPart String versionId, @RequestPart String saleEndDate) {
+		try {
+			int result = publishingService.updateSaleEndDate(versionId, saleEndDate);
+			if(result <= 0) {
+				return new ResponseEntity<>(utils.getResponseJson("sale end date update failed", CommonUtils.httpFail), HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}catch (Exception e) {
+			log.error("updateSaleEndDate Api versionId :  {} , saleEndDate {} ",versionId,saleEndDate, e);
+			return new ResponseEntity<>(utils.getResponseJson("sale end date update Error failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<>(utils.getResponseJson("sale end date update successfully", CommonUtils.httpSuccess) , HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/terms-verification", method = RequestMethod.POST)
@@ -126,9 +139,9 @@ public class SchedulerManagementController {
 			list = schedulerService.termsVerification(listTerms);
 		}catch(Exception e) {
 			log.error("terms-verification Api Terms List {} ", utils.toJsonArrayString(listTerms), e);
-			return new ResponseEntity<>(utils.getResponseJson("List lookup failed", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson("List lookup failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(utils.getResponseJson("List lookup successfully", list) , HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("List lookup successfully", CommonUtils.httpSuccess, list) , HttpStatus.OK);
 	}
 	
 	
@@ -187,8 +200,8 @@ public class SchedulerManagementController {
 			}
 		} catch (Exception e) {
 			log.error("mtsFileUpload Api OriginalFilename : {}  , comment : {}",file.getOriginalFilename(), comment, e);
-			return new ResponseEntity<>(" file Upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(utils.getResponseJson(" file Upload failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(" file Upload successfully", HttpStatus.OK);
+		return new ResponseEntity<>(utils.getResponseJson("ile Upload successfully", CommonUtils.httpSuccess) , HttpStatus.OK);
 	}
 }

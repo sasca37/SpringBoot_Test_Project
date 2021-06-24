@@ -14,5 +14,6 @@ public interface PublishingDao {
 	int insertPublishing(Publishing publishing);
 	int insertPublishingCondition(@Param("versionId") String versionId, @Param("conditions") String conditions);
 	int insertPublishingCode(@Param("versionId") String versionId, @Param("codes") String codes);
+	int updateSaleEndDate(@Param("versionId") String versionId, @Param("saleEndDate") String saleEndDate);
 	
 }

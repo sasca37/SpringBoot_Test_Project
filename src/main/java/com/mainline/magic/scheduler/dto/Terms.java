@@ -31,4 +31,5 @@ public class Terms implements Serializable{
 	private String updator;
 	private String updated;
 	private String path;
+	private String contractDate;
 }
