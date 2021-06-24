@@ -51,6 +51,7 @@ public class SchedulerManagementController {
 	private PublishingService publishingService;
 		
 	
+
 	@RequestMapping(value = "/add/jobs", method = RequestMethod.POST)
 	public ResponseEntity<?> addScheduleJobs(@RequestBody  List<Terms> listTerms) {
 		List<Terms> list = new ArrayList<Terms>();
@@ -74,11 +75,18 @@ public class SchedulerManagementController {
 						return new ResponseEntity<>(utils.getResponseJson("create data failed", CommonUtils.httpFail), HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				}
-				termsExecutor.callWorkerExecutor(terms);
-				t = new Terms();
-				t.setMergeId(terms.getMergeId());
-				t.setCode(terms.getCode());
-				list.add(t);
+				// 동기 식인지 체크
+				if(utils.checkBoolean(properties.getSyncFlag())) {
+					Future<Terms> future = termsExecutor.callWorkerExecutor(terms);
+					t = future.get();
+					list.add(t);
+				}else {
+					termsExecutor.workerExecutor(terms);
+					t = new Terms();
+					t.setMergeId(terms.getMergeId());
+					t.setCode(terms.getCode());
+					list.add(t);
+				}
 			}
 		} catch (Exception e) {
 			log.error("addScheduleJobs Api Terms {} ",t.toString(), e);
@@ -106,9 +114,16 @@ public class SchedulerManagementController {
 					return new ResponseEntity<>(utils.getResponseJson("create data failed", CommonUtils.httpFail), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
-			Future<Terms> future = termsExecutor.callWorkerExecutor(terms);
-			terms = future.get();
-			log.info("result : " + terms.toString());
+			
+			// 동기 식인지 체크
+			if(utils.checkBoolean(properties.getSyncFlag())) {
+				Future<Terms> future = termsExecutor.callWorkerExecutor(terms);
+				terms = future.get();
+				log.info("result : " + terms.toString());
+			}else{
+				termsExecutor.workerExecutor(terms);
+			}
+
 		} catch (Exception e) {
 			log.error("addScheduleJob Api Terms {} ",terms.toString(), e);
 			return new ResponseEntity<>(utils.getResponseJson("Job created failed", CommonUtils.httpError), HttpStatus.INTERNAL_SERVER_ERROR);

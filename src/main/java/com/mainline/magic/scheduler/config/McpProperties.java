@@ -26,5 +26,5 @@ public class McpProperties {
 	private String quartzDb;
 	private String threadSize;
 	private String cronExpression;
-	private String asyncFlag;
+	private String syncFlag;
 }
