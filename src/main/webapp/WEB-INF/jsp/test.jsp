@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+ <!-- Theme CSS -->
+    <link href="css/freelancer.min.css" rel="stylesheet">
 <style>
 body {
   background-color: lightblue;
