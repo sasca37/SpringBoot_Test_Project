@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mainline.magic.scheduler.dao.PublishingDao">
+	<insert id="insertPublishing">
+		INSERT INTO MCP_PUBLISHING(
+		  	VERSION_ID
+		  	<if test="productCode != null and !productCode.equals('null')">
+		  		,PRODUCT_CODE
+		  	</if>
+		  	,SALE_START_DATE
+		  	,SALE_END_DATE
+		  	,PATH
+		  	,CREATOR
+		)VALUES(
+		  	#{versionId}
+		  	<if test="productCode != null and !productCode.equals('null')">
+		  		,#{productCode}
+		  	</if>
+		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD')
+		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD')
+		  	,#{path}
+		  	,#{creator}
+		)
+	</insert>
+	
+	<insert id="insertPublishingCode">
+		INSERT INTO MCP_PUBLISHING_CODE(
+		  	VERSION_ID
+		  	,CODES
+		)VALUES(
+		  	#{versionId}
+		  	,#{codes}
+		)
+	</insert>
+	
+	<insert id="insertPublishingCondition">
+		INSERT INTO MCP_PUBLISHING_CONDITION(
+		  	VERSION_ID
+		  	,CONDITIONS
+		)VALUES(
+		  	#{versionId}
+		  	,#{conditions}
+		)
+	</insert>
+	
+	<update id="updateSaleEndDate">
+		UPDATE MCP_PUBLISHING 
+		SET SALE_END_DATE = TO_DATE(#{saleEndDate},'YYYY-MM-DD')
+		WHERE VERSION_ID = #{versionId}
+	</update>
+	
+	<select id="getPublishingOne" resultType="Publishing">
+		SELECT  
+			VERSION_ID
+		  	,PRODUCT_CODE
+		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD') AS SALE_START_DATE
+		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD') AS SALE_END_DATE
+		  	,PATH
+		  	,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+		  	,CREATOR
+		FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</select>
+	
+	<delete id="deletePublishing">
+		DELETE FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+	
+	<delete id="deletePublishingCode">
+		DELETE FROM 
+			MCP_PUBLISHING_CODE
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+	
+	
+	<delete id="deletePublishingCondition">
+		DELETE FROM 
+			MCP_PUBLISHING_CONDITION
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+</mapper>

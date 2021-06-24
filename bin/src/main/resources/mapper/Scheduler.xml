@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mainline.magic.scheduler.dao.SchedulerDao">
+
+	<!-- 스케쥴러 서버 상태 체크 -->
+	<select id="getSchedulerState" resultType="Map">
+		 SELECT * FROM QRTZ_SCHEDULER_STATE
+		 where #{date} <![CDATA[< ]]>LAST_CHECKIN_TIME
+	</select>
+	
+	<!-- GI 테이블 상태코드 업데이트 -->
+	<update id="updateTermsGIStatus">
+		UPDATE MCP_TERMS_MERGE_GI SET STATUS = #{status}, UPDATED = SYSDATE 
+		<if test="path != null">
+			,	PATH = #{path}
+		</if>
+		WHERE MERGE_ID = #{mergeId}
+	</update>
+	
+	<!-- LI테이블 상태코드 업데이트 -->
+	<update id="updateTermsLIStatus">
+		UPDATE MCP_TERMS_MERGE_LI SET STATUS = #{status}, UPDATED = SYSDATE 
+		<if test="path != null">
+			,	PATH = #{path}
+		</if>
+		WHERE MERGE_ID = #{mergeId}
+	</update>
+	
+	<select id="getTermsLI" resultType="Terms">
+		SELECT  
+			<!--  MERGE_ID 사용하면 LOMBOK 이 못읽음.. 이유 모름 // 설정 추가로 이 현상 없음-->
+			MERGE_ID AS MERGEID
+			,CODE
+			,STATUS
+			,CREATOR
+			,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+			,UPDATOR
+			,TO_CHAR(UPDATED,'YYYY-MM-DD HH24:MI:SS') AS UPDATED	
+		FROM MCP_TERMS_MERGE_LI
+		WHERE 1=1
+		<!-- 30초 전에 전송 및 작업 시작한게 남아있으면 다시 시도  -->
+		AND  (TO_CHAR(UPDATED, 'YYYY-MM-DD HH24:MI:SS') <![CDATA[< ]]> TO_CHAR(SYSDATE -30/24/60/60, 'YYYY-MM-DD HH24:MI:SS')
+			AND STATUS = '02') 
+		OR	(TO_CHAR(UPDATED, 'YYYY-MM-DD HH24:MI:SS') <![CDATA[< ]]> TO_CHAR(SYSDATE -30/24/60/60, 'YYYY-MM-DD HH24:MI:SS')
+			AND STATUS = '03') 
+		OR STATUS = '01'
+	</select>
+	
+	<select id="getTermsGI" resultType="Terms">
+		SELECT  
+			<!--  MERGE_ID 사용하면 LOMBOK 이 못읽음.. 이유 모름-->
+			MERGE_ID AS MERGEID
+			,ID
+			,CODE
+			,STATUS
+			,CREATOR
+			,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+			,UPDATOR
+			,TO_CHAR(UPDATED,'YYYY-MM-DD HH24:MI:SS') AS UPDATED	
+		FROM MCP_TERMS_MERGE_GI
+		WHERE 1=1
+		AND  (TO_CHAR(UPDATED, 'YYYY-MM-DD HH24:MI:SS') <![CDATA[< ]]> TO_CHAR(SYSDATE -30/24/60/60, 'YYYY-MM-DD HH24:MI:SS')
+			AND STATUS = '02') 
+		OR	(TO_CHAR(UPDATED, 'YYYY-MM-DD HH24:MI:SS') <![CDATA[< ]]> TO_CHAR(SYSDATE -30/24/60/60, 'YYYY-MM-DD HH24:MI:SS')
+			AND STATUS = '03') 
+		OR STATUS = '01'
+	</select>
+	
+	
+	<insert id="insertTermsGI">
+		INSERT INTO MCP_TERMS_MERGE_GI(
+			MERGE_ID
+			,ID
+			,CODE
+			,STATUS
+			,CREATOR
+			,CREATED
+			,UPDATOR
+			,UPDATED
+		)VALUES(
+			#{mergeId}
+			,#{id}
+			,#{code}
+			,#{status}
+			,#{creator}
+			,SYSDATE
+			,#{updator}
+			,SYSDATE
+		)
+	</insert>
+	
+	<insert id="insertTermsLI">
+		INSERT INTO MCP_TERMS_MERGE_LI(
+			MERGE_ID
+			,CODE
+			,STATUS
+			,CREATOR
+			,CREATED
+			,UPDATOR
+			,UPDATED
+		)VALUES(
+			#{mergeId}
+			,#{code}
+			,#{status}
+			,#{creator}
+			,SYSDATE
+			,#{updator}
+			,SYSDATE
+		)
+	</insert>
+	
+	<select id="termsVerificationLI" resultType="Terms">
+		SELECT 
+			MERGE_ID AS MERGEID
+			,CODE
+			,STATUS
+			,PATH
+		FROM MCP_TERMS_MERGE_LI
+		WHERE 1 = 1
+		<!-- STATUS = '04'  -->
+	     <choose>
+            <when test="list != null and list.size != 0">
+                AND  MERGE_ID IN 
+                <foreach collection="list" item="item" separator="," open="(" close=")">
+                    #{item.mergeId} 
+                </foreach>
+            </when>
+        </choose>
+	</select>
+	
+	<select id="termsVerificationGI" resultType="Terms">
+		SELECT 
+			MERGE_ID AS MERGEID
+			,ID 
+			,CODE
+			,PATH
+		FROM MCP_TERMS_MERGE_GI
+		WHERE 1 = 1
+		<!-- STATUS = '04'  -->
+	     <choose>
+            <when test="list != null and list.size != 0">
+                AND  MERGE_ID IN 
+                <foreach collection="list" item="item" separator="," open="(" close=")">
+                    #{item.mergeId} 
+                </foreach>
+            </when>
+        </choose>
+	</select>
+	
+	
+	<insert id="insertPublishing">
+		INSERT INTO MCP_PUBLISHING(
+		  	VERSION_ID
+		  	,PRODUCT_CODE
+		  	,SALE_START_DATE
+		  	,SALE_END_DATE
+		  	,PATH
+		  	,CREATOR
+		)VALUES(
+		  	#{versionId}
+		  	,#{productCode}
+		  	,TO_DATE(#{saleStartDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,TO_DATE(#{saleEndDate},'YYYY-MM-DD HH24:MI:SS')
+		  	,#{path}
+		  	,#{creator}
+		)
+	</insert>
+	
+	<select id="getPublishingOne" resultType="Publishing">
+		SELECT  
+			VERSION_ID
+		  	,PRODUCT_CODE
+		  	,TO_CHAR(SALE_START_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_START_DATE
+		  	,TO_CHAR(SALE_END_DATE,'YYYY-MM-DD HH24:MI:SS') AS SALE_END_DATE
+		  	,PATH
+		  	,TO_CHAR(CREATED,'YYYY-MM-DD HH24:MI:SS') AS CREATED
+		  	,CREATOR
+		FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</select>
+	
+	<delete id="deletePublishing">
+		DELETE FROM 
+			MCP_PUBLISHING
+		WHERE
+			VERSION_ID = #{versionId}	
+	</delete>
+</mapper>

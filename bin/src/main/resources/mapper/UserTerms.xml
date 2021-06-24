@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mainline.magic.scheduler.dao.UserTermsDao">
+	
+	<select id="getLIListForCodes" resultType="Publishing">
+	    SELECT A.* FROM MCP_PUBLISHING A
+			LEFT OUTER JOIN MCP_PUBLISHING_CODE B
+			ON A.VERSION_ID = B.VERSION_ID
+			LEFT OUTER JOIN MCP_PUBLISHING_CONDITION C
+			ON A.VERSION_ID = C.VERSION_ID
+		WHERE 1=1
+            AND A.SALE_START_DATE  <![CDATA[ <= ]]> TO_DATE(#{date})
+            AND TO_DATE(#{date}) <![CDATA[ < ]]> A.SALE_END_DATE
+       <choose>
+            <when test="list != null and list.size != 0">
+                AND 
+                <foreach collection="list" item="item" open="(" close=")" separator="or">
+                    B.CODES = #{item} 
+                </foreach>
+            </when>
+        </choose>
+           <!-- ${codeList} -->
+	</select>
+	
+	<select id="getGIListForCode" resultType="Publishing">
+		SELECT * FROM  MCP_PUBLISHING
+        WHERE 1=1
+        AND SALE_START_DATE  <![CDATA[ <= ]]>TO_DATE(#{date})
+        AND TO_DATE(#{date}) <![CDATA[  < ]]> SALE_END_DATE
+        AND PRODUCT_CODE = #{code} 
+	</select>
+</mapper>

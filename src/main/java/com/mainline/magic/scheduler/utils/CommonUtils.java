@@ -20,11 +20,15 @@ public class CommonUtils {
 	public static final String httpError = "100";
 	public static final String httpFail = "99";
 	
-	
+	// success : 작업 요청을 받았다 
 	public static final String success = "02";
+	//약관 제작 시작
 	public static final String start = "03";
+	//약관 제작 완료
 	public static final String end = "04";
+	//실패 
 	public static final String fail = "98";
+	//약관 제작이 실패 
 	public static final String makeFail = "99";
 
 	public static final String jobName = "MainLineJob";

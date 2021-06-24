@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.mainline.magic.scheduler.dao.McpTermsMergeLiDao">
+	<select id="selectAll" resultType="McpTerms">
+	   SELECT 
+			MERGE_ID AS ID
+			,CODE AS AAAAA
+			,STATUS
+			,CREATOR
+			,CREATED
+			,UPDATOR
+			,UPDATED
+			<!--,PATH
+			 ,CONTRACT_DATE
+			,PRODUCT_CODE
+			,REGISTRATION_NUM -->
+		FROM 
+			MCP_TERMS_MERGE_LI  
+		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
+	</select>	
+	
+	
+</mapper>
