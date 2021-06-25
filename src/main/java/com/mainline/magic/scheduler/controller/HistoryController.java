@@ -1,7 +1,10 @@
 package com.mainline.magic.scheduler.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import com.mainline.magic.scheduler.dto.Criteria;
+import com.mainline.magic.scheduler.dto.Paging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,14 +30,14 @@ public class HistoryController {
 	}
 	
 	@GetMapping("/test2")
-	public String test2(Model model ) {
+	public String test2(Criteria cri, Model model ) throws Exception {
 		List<McpTerms> list = mcpTermsService.selectList();
 		List<McpTerms> list2 = mcpTermsService.selectLimit();
 		model.addAttribute("list", list);
 		log.info("list 값 : "+list);
 		model.addAttribute("list2", list2);
 
-		/*// 페이징
+		// 페이징
 
 		// 전체 글 개수
 		int boardListCnt = mcpTermsService.boardListCnt();
@@ -47,7 +50,7 @@ public class HistoryController {
 		List<Map<String, Object>> boardList = mcpTermsService.boardList(cri);
 
 		model.addAttribute("boardList", boardList);
-		model.addAttribute("paging", paging);*/
+		model.addAttribute("paging", paging);
 
 		return "/test2";
 	}
