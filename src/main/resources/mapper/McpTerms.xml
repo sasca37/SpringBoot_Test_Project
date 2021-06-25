@@ -4,22 +4,32 @@
 
 <mapper namespace="com.mainline.magic.scheduler.dao.McpTermsMergeLiDao">
 	<select id="selectAll" resultType="McpTerms">
-	   SELECT 
-			MERGE_ID AS ID
-			,CODE AS AAAAA
+	   SELECT
+			MERGE_ID
+			,CODE
 			,STATUS
 			,CREATOR
-			,CREATED
+			,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
 			,UPDATOR
 			,UPDATED
-			<!--,PATH
-			 ,CONTRACT_DATE
+			,PATH
+			,TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') AS CONTRACT_DATE
 			,PRODUCT_CODE
-			,REGISTRATION_NUM -->
+			,REGISTRATION_NUM
 		FROM 
-			MCP_TERMS_MERGE_LI  
+			MCP_TERMS_MERGE_LI
+		<![CDATA[WHERE REGISTRATION_NUM <=10]]>
 		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
-	</select>	
-	
-	
+	</select>
+
+	<select id="selectLimit" resultType="McpTerms">
+		SELECT
+			*
+		FROM
+			MCP_TERMS_MERGE_LI
+		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
+	</select>
+
+
+
 </mapper>

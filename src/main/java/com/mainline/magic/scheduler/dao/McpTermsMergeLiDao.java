@@ -1,9 +1,9 @@
 package com.mainline.magic.scheduler.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import com.mainline.magic.scheduler.dto.McpTerms;
 
@@ -22,6 +22,6 @@ public interface McpTermsMergeLiDao {
 //	int insertPublishingCode(@Param("versionId") String versionId, @Param("codes") String codes);
 //	int updateSaleEndDate(@Param("versionId") String versionId, @Param("saleEndDate") String saleEndDate);
 	
-	public List<McpTerms> selectAll();
-	
+	 List<McpTerms> selectAll();
+	 List<McpTerms> selectLimit();
 }
