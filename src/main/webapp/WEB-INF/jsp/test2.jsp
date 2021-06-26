@@ -71,7 +71,7 @@
         </tbody>
     </table>
 
-    <%--<ul class="paging">
+    <ul class="paging">
         <c:if test="${paging.prev}">
             <span><a href='<c:url value="/test2?page=${paging.startPage-1}"/>'>이전</a></span>
         </c:if>
@@ -81,7 +81,7 @@
         <c:if test="${paging.next && paging.endPage>0}">
             <span><a href='<c:url value="/test2?page=${paging.endPage+1}"/>'>다음</a></span>
         </c:if>
-    </ul>--%>
+    </ul>
 
 
 </div>

@@ -30,6 +30,24 @@
 		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
 	</select>
 
+	<select id="boardList" resultType="hashmap" parameterType="hashmap">
+		<![CDATA[
+		select *
+		from (
+				 select row_number() over (order by status) num
+        , A.*
+				 from mcp_terms_merge_li A
+				 order by status
+			 )
+		/*where num between 7 and 9*/
+		 ]]>
+		/*where num between #{pageStart} and #{perPageNum}*/
+
+	</select>
+	<select id="boardListCnt" resultType="int">
+		SELECT count(status)
+		FROM mcp_terms_merge_li
+	</select>
 
 
 </mapper>
