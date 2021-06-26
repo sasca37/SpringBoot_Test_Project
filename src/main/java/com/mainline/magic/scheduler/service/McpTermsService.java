@@ -20,6 +20,7 @@ public class McpTermsService {
 		return mcpTermsMergeLiDao.selectAll();
 	}
 
+
 	public List<McpTerms> selectLimit(){
 		return mcpTermsMergeLiDao.selectLimit();
 	}
@@ -31,6 +32,7 @@ public class McpTermsService {
 	public List<Map<String, Object>> boardList(Criteria cri) throws Exception {
 		return mcpTermsMergeLiDao.boardList(cri);
 	}
+
 
 
 

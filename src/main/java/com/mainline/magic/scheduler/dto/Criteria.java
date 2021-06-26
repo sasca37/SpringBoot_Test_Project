@@ -1,3 +1,4 @@
+
 package com.mainline.magic.scheduler.dto;
 
 public class Criteria {

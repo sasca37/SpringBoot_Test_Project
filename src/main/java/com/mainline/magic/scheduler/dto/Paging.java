@@ -1,5 +1,4 @@
 package com.mainline.magic.scheduler.dto;
-
 // 게시판 하단의 페이징
 public class Paging {
 

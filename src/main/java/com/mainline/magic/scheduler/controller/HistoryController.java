@@ -35,7 +35,7 @@ public class HistoryController {
 		List<McpTerms> list2 = mcpTermsService.selectLimit();
 		model.addAttribute("list", list);
 		log.info("list 값 : "+list);
-		model.addAttribute("list2", list2);
+		/*model.addAttribute("list2", list2);*/
 
 		// 페이징
 
@@ -62,11 +62,11 @@ public class HistoryController {
 
 
 
-	@GetMapping("/tt")
+	/*@GetMapping("/tt")
 	public @ResponseBody List<McpTerms> selectAll() {
 		List<McpTerms> list = mcpTermsService.selectLimit();
 		log.info("selectLimit 실행");
 		return list;
 
-	}
+	}*/
 }

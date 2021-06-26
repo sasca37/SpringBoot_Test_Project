@@ -19,7 +19,7 @@
 		FROM 
 			MCP_TERMS_MERGE_LI
 		<![CDATA[WHERE REGISTRATION_NUM <=10]]>
-		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
+
 	</select>
 
 	<select id="selectLimit" resultType="McpTerms">
@@ -27,11 +27,9 @@
 			*
 		FROM
 			MCP_TERMS_MERGE_LI
-		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
 	</select>
 
-	<select id="boardList" resultType="hashmap" parameterType="hashmap">
-		<![CDATA[
+	<select id="boardList" resultType="McpTerms">
 		select *
 		from (
 				 select row_number() over (order by status) num
@@ -39,13 +37,11 @@
 				 from mcp_terms_merge_li A
 				 order by status
 			 )
-		/*where num between 7 and 9*/
-		 ]]>
-		/*where num between #{pageStart} and #{perPageNum}*/
+		where num between 2 and 9
 
 	</select>
 	<select id="boardListCnt" resultType="int">
-		SELECT count(status)
+		SELECT count(*)
 		FROM mcp_terms_merge_li
 	</select>
 
