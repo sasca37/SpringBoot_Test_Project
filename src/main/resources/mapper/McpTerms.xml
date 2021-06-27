@@ -3,46 +3,37 @@
 
 
 <mapper namespace="com.mainline.magic.scheduler.dao.McpTermsMergeLiDao">
-	<select id="selectAll" resultType="McpTerms">
-	   SELECT
-			MERGE_ID
-			,CODE
-			,STATUS
-			,CREATOR
-			,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
-			,UPDATOR
-			,UPDATED
-			,PATH
-			,TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') AS CONTRACT_DATE
-			,PRODUCT_CODE
-			,REGISTRATION_NUM
-		FROM 
-			MCP_TERMS_MERGE_LI
-		<![CDATA[WHERE REGISTRATION_NUM <=10]]>
-
-	</select>
-
-	<select id="selectLimit" resultType="McpTerms">
-		SELECT
-			*
-		FROM
-			MCP_TERMS_MERGE_LI
-	</select>
 
 	<select id="boardList" resultType="McpTerms">
-		select *
-		from (
-				 select row_number() over (order by to_number(registration_num)) num
-        , A.*
-				 from mcp_terms_merge_li A
-				 order by num
+		SELECT
+		       *
+		FROM (
+			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(REGISTRATION_NUM)) NUM
+			  ,MERGE_ID
+			  ,CODE
+			  ,STATUS
+			  ,CREATOR
+			  ,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
+			  ,UPDATOR
+			  ,UPDATED
+			  ,PATH
+			  ,TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') AS CONTRACT_DATE
+			  ,PRODUCT_CODE
+			  ,REGISTRATION_NUM
+			  FROM MCP_TERMS_MERGE_LI
+			  ORDER BY NUM
 			 )
-		where num between #{pageStart}+1 and #{perPageNum}+#{pageStart}
+		WHERE
+		      NUM
+		BETWEEN
+		      #{pageStart}+1 AND #{perPageNum}+#{pageStart}
 
 	</select>
 	<select id="boardListCnt" resultType="int">
-		SELECT count(*)
-		FROM mcp_terms_merge_li
+		SELECT
+		      COUNT(*)
+		FROM
+		      MCP_TERMS_MERGE_LI
 	</select>
 
 

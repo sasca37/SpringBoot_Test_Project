@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.mainline.magic.scheduler.dto.McpTerms;
@@ -45,13 +46,14 @@ public class HistoryController {
 		Paging paging = new Paging();
 		log.info("paging_cri"+cri);
 		paging.setCri(cri);
-		paging.setTotalCount(boardListCnt);
+		paging.setTotalCounting(boardListCnt);
 
 		List<Map<String, Object>> list = mcpTermsService.boardList(cri);
 		log.info("list_cri"+cri);
 		model.addAttribute("list", list);
 		model.addAttribute("paging", paging);
 		model.addAttribute("cri", cri);
+		model.addAttribute("boardListCnt", boardListCnt);
 		log.info("list"+list);
 		log.info("paging"+paging);
 		return "/test2";
@@ -62,7 +64,16 @@ public class HistoryController {
 		return "/test3";
 	}
 
+	@GetMapping("/search")
+	public void search(){
+		log.info("search_get start");
+	}
 
+	@PostMapping("/search")
+	public String searchPost(){
+		log.info("redirect start");
+		return "redirect:/MagicScheduler/test2";
+	}
 
 	/*@GetMapping("/tt")
 	public @ResponseBody List<McpTerms> selectAll() {

@@ -1,6 +1,12 @@
 package com.mainline.magic.scheduler.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@ToString
+@Setter
 // 게시판 하단의 페이징
 public class Paging {
 
@@ -14,11 +20,11 @@ public class Paging {
     private Criteria cri;
 
 
-    public int getTotalCount() {
+    /*public int getTotalCount() {
         return totalCount;
-    }
+    }*/
 
-    public void setTotalCount(int totalCount) {
+    public void setTotalCounting(int totalCount) {
         this.totalCount = totalCount;
 
         pagingData();
@@ -43,7 +49,7 @@ public class Paging {
         // 크거나 같으면 false, 아니면 true
     }
 
-    public int getDisplayPageNum() {
+   /* public int getDisplayPageNum() {
         return displayPageNum;
     }
 
@@ -96,7 +102,7 @@ public class Paging {
     public String toString() {
         return "PageMaker [totalCount=" + totalCount + ", startPage=" + startPage + ", endPage=" + endPage + ", prev="
                 + prev + ", next=" + next + ", displayPageNum=" + displayPageNum + ", cri=" + cri + "]";
-    }
+    }*/
 
 }
 
