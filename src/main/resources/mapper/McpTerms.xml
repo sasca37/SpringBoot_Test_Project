@@ -37,7 +37,7 @@
 				 from mcp_terms_merge_li A
 				 order by status
 			 )
-		where num between 2 and 9
+		where num between 2 and 10
 
 	</select>
 	<select id="boardListCnt" resultType="int">
