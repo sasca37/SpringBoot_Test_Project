@@ -8,6 +8,9 @@
 		SELECT
 		       *
 		FROM (
+		<!--<if test="productCode != null and !productCode.equals('null')">
+			,PRODUCT_CODE
+		</if>-->
 			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(REGISTRATION_NUM)) NUM
 			  ,MERGE_ID
 			  ,CODE

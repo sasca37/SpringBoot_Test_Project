@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mainline.magic.scheduler.dto.McpTerms;
 import com.mainline.magic.scheduler.service.McpTermsService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 @Log4j2
 @Controller
 @RequestMapping("/MagicScheduler")
@@ -70,7 +72,8 @@ public class HistoryController {
 	}
 
 	@PostMapping("/search")
-	public String searchPost(){
+	public String searchPost(McpTerms mcpTerms, RedirectAttributes redirectAttributes){
+
 		log.info("redirect start");
 		return "redirect:/MagicScheduler/test2";
 	}
