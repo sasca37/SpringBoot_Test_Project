@@ -25,16 +25,15 @@ public class HistoryController {
 
 	@GetMapping("/test")
 	public String test() {
-		log.info("@@!!!!");
 		return "/test";
 	}
 	
 	@GetMapping("/test2")
 	public String test2(Criteria cri, Model model ) throws Exception {
-		List<McpTerms> list = mcpTermsService.selectList();
+		/*List<McpTerms> list = mcpTermsService.selectList();
 		List<McpTerms> list2 = mcpTermsService.selectLimit();
 		model.addAttribute("list", list);
-		log.info("list 값 : "+list);
+		log.info("list 값 : "+list);*/
 		/*model.addAttribute("list2", list2);*/
 
 		// 페이징
@@ -44,14 +43,17 @@ public class HistoryController {
 
 		// 페이징 객체
 		Paging paging = new Paging();
+		log.info("paging_cri"+cri);
 		paging.setCri(cri);
 		paging.setTotalCount(boardListCnt);
 
-		List<Map<String, Object>> boardList = mcpTermsService.boardList(cri);
-
-		model.addAttribute("boardList", boardList);
+		List<Map<String, Object>> list = mcpTermsService.boardList(cri);
+		log.info("list_cri"+cri);
+		model.addAttribute("list", list);
 		model.addAttribute("paging", paging);
-
+		model.addAttribute("cri", cri);
+		log.info("list"+list);
+		log.info("paging"+paging);
 		return "/test2";
 	}
 

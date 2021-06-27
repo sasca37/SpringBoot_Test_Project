@@ -32,12 +32,12 @@
 	<select id="boardList" resultType="McpTerms">
 		select *
 		from (
-				 select row_number() over (order by status) num
+				 select row_number() over (order by to_number(registration_num)) num
         , A.*
 				 from mcp_terms_merge_li A
-				 order by status
+				 order by num
 			 )
-		where num between 2 and 10
+		where num between #{pageStart}+1 and #{perPageNum}+#{pageStart}
 
 	</select>
 	<select id="boardListCnt" resultType="int">

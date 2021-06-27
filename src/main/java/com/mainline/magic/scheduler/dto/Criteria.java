@@ -16,7 +16,7 @@ public class Criteria {
     public Criteria() {
         // 기본 생성자 : 최초 게시판에 진입시 필요한 기본값
         this.page = 1;
-        this.perPageNum = 10;
+        this.perPageNum = 2;
     }
 
     // 현재 페이지 번호 page : getter, setter

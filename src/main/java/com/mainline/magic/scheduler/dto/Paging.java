@@ -1,4 +1,6 @@
 package com.mainline.magic.scheduler.dto;
+
+
 // 게시판 하단의 페이징
 public class Paging {
 
@@ -9,7 +11,6 @@ public class Paging {
     private int endPage;  // 화면의 끝 번호
     private boolean prev; // 페이징 이전 버튼 활성화 여부
     private boolean next; // 페이징 다음 버튼 활성화 여부
-
     private Criteria cri;
 
 
@@ -22,7 +23,6 @@ public class Paging {
 
         pagingData();
     }
-
     private void pagingData() {
 
         endPage = (int) (Math.ceil(cri.getPage() / (double) displayPageNum) * displayPageNum);
