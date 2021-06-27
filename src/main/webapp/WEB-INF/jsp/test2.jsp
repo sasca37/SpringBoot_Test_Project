@@ -17,15 +17,16 @@
     <br>
 
     <h2>조회 목록</h2>
-    <c:out value="${'Total : '} ${countTuple}"></c:out>
-    <form class="form-inline" action="/action_page.php">
+    <c:out value="${'Total Search : '} ${boardListCnt}"></c:out>
+    <form class="form-inline" action="/MagicScheduler/search" method="post">
+    <div class="form-group">
         <label class="mb-2 mr-sm-2">계약 일짜 :</label>
         <input type="date" class="form-control mb-2 mr-sm-2" id="contract_date" name="contract_date">
-        <label for="pwd2" class="mb-2 mr-sm-2">접수 번호 :</label>
-        <input type="text" class="form-control mb-2 mr-sm-2" id="pwd2" placeholder="증권번호, 청약번호" name="pswd">
+        <label class="mb-2 mr-sm-2">접수 번호 :</label>
+        <input type="text" class="form-control mb-2 mr-sm-2" id="registration_num" placeholder="증권번호, 청약번호" name="registration_num">
         <div class="form-group">
-            <label for="sel1" class="mb-2 mr-sm-2">상태 코드 :</label>
-            <select class="form-control mb-2 mr-sm-2" id="sel1">
+            <label class="mb-2 mr-sm-2">상태 코드 :</label>
+            <select class="form-control mb-2 mr-sm-2" id="status" name="status">
                 <option>전체</option>
                 <option>02</option>
                 <option>03</option>
@@ -35,13 +36,14 @@
             </select>
         </div>
         <br>
-    </form>
-    <form class="form-inline" action="/action_page.php">
+    </div>
+    <div class="form-group">
         <label class="mb-2 mr-sm-2">조회 시작 :</label>
         <input type="date" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start">
         <label class="mb-2 mr-sm-2">조회 종료 :</label>
         <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" name="created_end">
         <button type="submit" class="btn btn-primary mb-2">조회</button>
+    </div>
     </form>
 
 
@@ -71,17 +73,32 @@
         </tbody>
     </table>
 
-    <%--<ul class="paging">
+    <ul class="pagination h-100 justify-content-center align-items-center">
         <c:if test="${paging.prev}">
-            <span><a href='<c:url value="/test2?page=${paging.startPage-1}"/>'>이전</a></span>
+            <li class="page-item">
+            <a class="page-link" href='<c:url value="/MagicScheduler/test2?page=${paging.startPage-1}"/>'>이전</a>
+            </li>
         </c:if>
         <c:forEach begin="${paging.startPage}" end="${paging.endPage}" var="num">
-            <span><a href='<c:url value="/test2?page=${num}"/>'>${num}</a></span>
+            <c:choose>
+                <c:when test="${cri.page eq num}">
+                    <li class="page-item active">
+                        <a class="page-link" href='<c:url value="/MagicScheduler/test2?page=${num}"/>'>${num}</a>
+                    </li>
+                </c:when>
+                <c:otherwise>
+                    <li class="page-item">
+                        <a class="page-link" href='<c:url value="/MagicScheduler/test2?page=${num}"/>'>${num}</a>
+                    </li>
+                </c:otherwise>
+            </c:choose>
         </c:forEach>
         <c:if test="${paging.next && paging.endPage>0}">
-            <span><a href='<c:url value="/test2?page=${paging.endPage+1}"/>'>다음</a></span>
+            <li class="page-item">
+            <a class="page-link" href='<c:url value="/MagicScheduler/test2?page=${paging.endPage+1}"/>'>다음</a>
+            </li>
         </c:if>
-    </ul>--%>
+    </ul>
 
 
 </div>

@@ -3,6 +3,7 @@ package com.mainline.magic.scheduler.dao;
 import java.util.List;
 import java.util.Map;
 
+
 import com.mainline.magic.scheduler.dto.Criteria;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -25,9 +26,13 @@ public interface McpTermsMergeLiDao {
 	
 	 List<McpTerms> selectAll();
 	 List<McpTerms> selectLimit();
-	public List<Map<String, Object>> boardList(Criteria cri) throws Exception;
+	 List<Map<String, Object>> boardList(Criteria cri) throws Exception;
 
-	public int boardListCnt() throws Exception;
-
+	 int boardListCnt() throws Exception;
+	 String contract_date();
+	 String registration_num();
+	 int status();
+	 String created_start();
+	 String created_end();
 
 }

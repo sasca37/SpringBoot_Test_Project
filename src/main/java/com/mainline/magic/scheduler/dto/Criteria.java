@@ -1,5 +1,14 @@
+
 package com.mainline.magic.scheduler.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Getter
+@Setter
+@ToString
 public class Criteria {
 
     // 특정 페이지 조회를 위한 클래스
@@ -15,10 +24,10 @@ public class Criteria {
     public Criteria() {
         // 기본 생성자 : 최초 게시판에 진입시 필요한 기본값
         this.page = 1;
-        this.perPageNum = 10;
+        this.perPageNum = 5;
     }
 
-    // 현재 페이지 번호 page : getter, setter
+   /* // 현재 페이지 번호 page : getter, setter
     public int getPage() {
         return page;
     }
@@ -52,7 +61,7 @@ public class Criteria {
     @Override
     public String toString() {
         return "Criteria [page=" + page + ", perPageNum=" + perPageNum + "]";
-    }
+    }*/
 }
 
 

@@ -3,33 +3,41 @@
 
 
 <mapper namespace="com.mainline.magic.scheduler.dao.McpTermsMergeLiDao">
-	<select id="selectAll" resultType="McpTerms">
-	   SELECT
-			MERGE_ID
-			,CODE
-			,STATUS
-			,CREATOR
-			,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
-			,UPDATOR
-			,UPDATED
-			,PATH
-			,TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') AS CONTRACT_DATE
-			,PRODUCT_CODE
-			,REGISTRATION_NUM
-		FROM 
-			MCP_TERMS_MERGE_LI
-		<![CDATA[WHERE STATUS>=3 AND REGISTRATION_NUM <=2]]>
-		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
-	</select>
 
-	<select id="selectLimit" resultType="McpTerms">
+	<select id="boardList" resultType="McpTerms">
 		SELECT
-			*
-		FROM
-			MCP_TERMS_MERGE_LI
-		<!-- SELECT * FROM MCP_TERMS_MERGE_LI -->
-	</select>
+		       *
+		FROM (
+		<!--<if test="productCode != null and !productCode.equals('null')">
+			,PRODUCT_CODE
+		</if>-->
+			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(REGISTRATION_NUM)) NUM
+			  ,MERGE_ID
+			  ,CODE
+			  ,STATUS
+			  ,CREATOR
+			  ,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
+			  ,UPDATOR
+			  ,UPDATED
+			  ,PATH
+			  ,TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') AS CONTRACT_DATE
+			  ,PRODUCT_CODE
+			  ,REGISTRATION_NUM
+			  FROM MCP_TERMS_MERGE_LI
+			  ORDER BY NUM
+			 )
+		WHERE
+		      NUM
+		BETWEEN
+		      #{pageStart}+1 AND #{perPageNum}+#{pageStart}
 
+	</select>
+	<select id="boardListCnt" resultType="int">
+		SELECT
+		      COUNT(*)
+		FROM
+		      MCP_TERMS_MERGE_LI
+	</select>
 
 
 </mapper>
