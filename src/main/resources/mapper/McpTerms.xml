@@ -8,10 +8,8 @@
 		SELECT
 		       *
 		FROM (
-		<!--<if test="productCode != null and !productCode.equals('null')">
-			,PRODUCT_CODE
-		</if>-->
-			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(REGISTRATION_NUM)) NUM
+
+			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(STATUS)) NUM
 			  ,MERGE_ID
 			  ,CODE
 			  ,STATUS
@@ -24,6 +22,9 @@
 			  ,PRODUCT_CODE
 			  ,REGISTRATION_NUM
 			  FROM MCP_TERMS_MERGE_LI
+			 <!-- <if test="registration_num != null and !registration_num.equals('null')">
+			  WHERE REGISTRATION_NUM = #{registration_num}
+			  </if>-->
 			  ORDER BY NUM
 			 )
 		WHERE
@@ -37,7 +38,15 @@
 		      COUNT(*)
 		FROM
 		      MCP_TERMS_MERGE_LI
+		/*WHERE STATUS = 03*/
 	</select>
 
-
+	<!--<sql id="search">
+		<if test="status != null">
+			<if test="status == 't'.toString()">AND TITLE LIKE '%' || #{status} || '%'</if>
+			<if test="status == 'c'.toString()">AND CONTENT LIKE '%' || #{status} || '%'</if>
+			<if test="status == 'w'.toString()">AND WRITER LIKE '%' || #{status} || '%'</if>
+			<if test="status == 'tc'.toString()">AND (TITLE LIKE '%' || #{status} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>-->
 </mapper>

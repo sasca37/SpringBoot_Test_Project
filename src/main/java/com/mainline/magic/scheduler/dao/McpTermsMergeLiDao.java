@@ -1,10 +1,10 @@
 package com.mainline.magic.scheduler.dao;
 
 import java.util.List;
-import java.util.Map;
 
 
 import com.mainline.magic.scheduler.dto.Criteria;
+import com.mainline.magic.scheduler.dto.SearchCriteria;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.mainline.magic.scheduler.dto.McpTerms;
@@ -24,15 +24,10 @@ public interface McpTermsMergeLiDao {
 //	int insertPublishingCode(@Param("versionId") String versionId, @Param("codes") String codes);
 //	int updateSaleEndDate(@Param("versionId") String versionId, @Param("saleEndDate") String saleEndDate);
 	
-	 List<McpTerms> selectAll();
-	 List<McpTerms> selectLimit();
-	 List<Map<String, Object>> boardList(Criteria cri) throws Exception;
-
+	 List<McpTerms> boardList(Criteria cri) throws Exception;
 	 int boardListCnt() throws Exception;
-	 String contract_date();
-	 String registration_num();
-	 int status();
-	 String created_start();
-	 String created_end();
+
+	 List<McpTerms> list(SearchCriteria scri) throws Exception;
+	 int listCount(SearchCriteria scri) throws Exception;
 
 }

@@ -20,7 +20,7 @@ public class McpTerms {
 	private String path; //경로
 	private String contractDate; //계약 일자
 	private String productCode; //상품 코드
-	private int registrationNum; //접수 번호
+	private String registrationNum; //접수 번호
 
 
 }

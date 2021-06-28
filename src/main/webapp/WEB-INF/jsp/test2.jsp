@@ -18,33 +18,41 @@
 
     <h2>조회 목록</h2>
     <c:out value="${'Total Search : '} ${boardListCnt}"></c:out>
-    <form class="form-inline" action="/MagicScheduler/search" method="post">
-    <div class="form-group">
-        <label class="mb-2 mr-sm-2">계약 일짜 :</label>
-        <input type="date" class="form-control mb-2 mr-sm-2" id="contract_date" name="contract_date">
-        <label class="mb-2 mr-sm-2">접수 번호 :</label>
-        <input type="text" class="form-control mb-2 mr-sm-2" id="registration_num" placeholder="증권번호, 청약번호" name="registration_num">
-        <div class="form-group">
-            <label class="mb-2 mr-sm-2">상태 코드 :</label>
-            <select class="form-control mb-2 mr-sm-2" id="status" name="status">
-                <option>전체</option>
-                <option>02</option>
-                <option>03</option>
-                <option>04</option>
-                <option>98</option>
-                <option>99</option>
-            </select>
-        </div>
-        <br>
-    </div>
-    <div class="form-group">
-        <label class="mb-2 mr-sm-2">조회 시작 :</label>
-        <input type="date" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start">
-        <label class="mb-2 mr-sm-2">조회 종료 :</label>
-        <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" name="created_end">
-        <button type="submit" class="btn btn-primary mb-2">조회</button>
-    </div>
-    </form>
+
+        <form class="form-inline" action="/MagicScheduler/search" method="get">
+            <div class="form-group">
+                <label class="mb-2 mr-sm-2">계약 일짜 :</label>
+                <input type="date" class="form-control mb-2 mr-sm-2" id="contract_date" name="contract_date" value="${cri.contract_date}">
+                <label class="mb-2 mr-sm-2">접수 번호 :</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="registration_num" placeholder="증권번호, 청약번호"
+                       name="registration_num" value="${cri.registration_num}">
+                <div class="form-group">
+                    <label class="mb-2 mr-sm-2">상태 코드 :</label>
+                    <select class="form-control mb-2 mr-sm-2" id="status" name="status" >
+                        <option value=""
+                                <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
+                        <option value="02"
+                                <c:out value="${cri.status == 'a'?'selected':''}"/> >02</option>
+                        <option value="03"
+                                <c:out value="${cri.status == 'b'?'selected':''}"/> >03</option>
+                        <option value="04"
+                                <c:out value="${cri.status == 'c'?'selected':''}"/> >04</option>
+                        <option value="98"
+                                <c:out value="${cri.status == 'd'?'selected':''}"/> >98</option>
+                        <option value="99"
+                                <c:out value="${cri.status == 'e'?'selected':''}"/> >99</option>
+                    </select>
+                </div>
+                <br>
+            </div>
+            <div class="form-group">
+                <label class="mb-2 mr-sm-2">조회 시작 :</label>
+                <input type="date" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start" value="${cri.created_start}">
+                <label class="mb-2 mr-sm-2">조회 종료 :</label>
+                <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" name="created_end" value="${cri.created_end}">
+                <button type="submit" class="btn btn-primary mb-2">조회</button>
+            </div>
+        </form>
 
 
 
@@ -59,6 +67,7 @@
 
         </tr>
         </thead>
+
         <tbody id="mySearch">
         <c:forEach items="${list}" var="k">
             <tr>
@@ -69,8 +78,8 @@
 
             </tr>
         </c:forEach>
-
         </tbody>
+
     </table>
 
     <ul class="pagination h-100 justify-content-center align-items-center">
