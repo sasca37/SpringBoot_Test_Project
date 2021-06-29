@@ -30,15 +30,15 @@
                     <option value=""
                             <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
                     <option value="02"
-                            <c:out value="${cri.status == '02'?'selected':''}"/> >작업 요청</option>
+                            <c:out value="${cri.status == '02'?'selected':''}"/> >작업 요청(02)</option>
                     <option value="03"
-                            <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작</option>
+                            <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작(03)</option>
                     <option value="04"
-                            <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료</option>
+                            <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료(04)</option>
                     <option value="98"
-                            <c:out value="${cri.status == '98'?'selected':''}"/> >실패</option>
+                            <c:out value="${cri.status == '98'?'selected':''}"/> >실패(98)</option>
                     <option value="99"
-                            <c:out value="${cri.status == '99'?'selected':''}"/> >약관 제작 실패</option>
+                            <c:out value="${cri.status == '99'?'selected':''}"/> >약관 제작 실패(99)</option>
                 </select>
             </div>
             <br>
