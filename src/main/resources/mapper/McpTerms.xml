@@ -38,7 +38,11 @@
 				  <if test="created_end != null and !created_end.equals('null')">
 						AND CREATED <![CDATA[<=]]> #{created_end}
 				  </if>
-			  ORDER BY NUM
+						<![CDATA[
+						AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= CREATED
+						AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
+						]]>
+			ORDER BY NUM
 			 )
 		WHERE
 		      NUM
@@ -69,6 +73,12 @@
 				<if test="created_end != null and !created_end.equals('null')">
 					AND CREATED <![CDATA[<=]]> #{created_end}
 				</if>
+					<![CDATA[
+					AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= CREATED
+					AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
+					]]>
+		/*select to_char(add_months(sysdate,-1),'yyyy-mm-dd') as 한달전 from mcp_terms_merge_li;*/
+
 	</select>
 
 	<!--<sql id="search">
