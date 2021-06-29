@@ -8,6 +8,7 @@ import com.mainline.magic.scheduler.dto.SearchCriteria;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.mainline.magic.scheduler.dto.McpTerms;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface McpTermsMergeLiDao {
@@ -25,9 +26,9 @@ public interface McpTermsMergeLiDao {
 //	int updateSaleEndDate(@Param("versionId") String versionId, @Param("saleEndDate") String saleEndDate);
 	
 	 List<McpTerms> boardList(Criteria cri) throws Exception;
-	 int boardListCnt() throws Exception;
+	 int boardListCnt(Criteria cri) throws Exception;
 
 	 List<McpTerms> list(SearchCriteria scri) throws Exception;
-	 int listCount(SearchCriteria scri) throws Exception;
+	 int listCount( SearchCriteria scri) throws Exception;
 
 }

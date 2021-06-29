@@ -22,9 +22,23 @@
 			  ,PRODUCT_CODE
 			  ,REGISTRATION_NUM
 			  FROM MCP_TERMS_MERGE_LI
-			 <!-- <if test="registration_num != null and !registration_num.equals('null')">
-			  WHERE REGISTRATION_NUM = #{registration_num}
-			  </if>-->
+			 <!-- <![CDATA[WHERE TRUNC(SYSDATE) - TO_CHAR(CREATED, 'YYYYMMDD') > 1]]>-->
+			  WHERE 1=1
+				  <if test="status != null and !status.equals('null')">
+					    AND STATUS = #{status}
+				  </if>
+				  <if test="registration_num != null and !registration_num.equals('null')">
+				  	    AND REGISTRATION_NUM = #{registration_num}
+				  </if>
+				  <if test="contract_date != null and !contract_date.equals('null')">
+						AND CONTRACT_DATE = #{contract_date}
+				  </if>
+				  <if test="created_start != null and !created_start.equals('null')">
+						AND CREATED <![CDATA[>=]]> #{created_start}
+				  </if>
+				  <if test="created_end != null and !created_end.equals('null')">
+						AND CREATED <![CDATA[<=]]> #{created_end}
+				  </if>
 			  ORDER BY NUM
 			 )
 		WHERE
@@ -33,12 +47,29 @@
 		      #{pageStart}+1 AND #{perPageNum}+#{pageStart}
 
 	</select>
-	<select id="boardListCnt" resultType="int">
+
+	<select id="boardListCnt"  resultType="int">
+
 		SELECT
-		      COUNT(*)
+		        COUNT(*)
 		FROM
-		      MCP_TERMS_MERGE_LI
-		/*WHERE STATUS = 03*/
+		        MCP_TERMS_MERGE_LI
+		WHERE 1=1
+				<if test="status != null and !status.equals('null')">
+					AND STATUS = #{status}
+				</if>
+				<if test="registration_num != null and !registration_num.equals('null')">
+					AND REGISTRATION_NUM = #{registration_num}
+				</if>
+				<if test="contract_date != null and !contract_date.equals('null')">
+					AND CONTRACT_DATE = #{contract_date}
+				</if>
+				<if test="created_start != null and !created_start.equals('null')">
+					AND CREATED <![CDATA[>=]]> #{created_start}
+				</if>
+				<if test="created_end != null and !created_end.equals('null')">
+					AND CREATED <![CDATA[<=]]> #{created_end}
+				</if>
 	</select>
 
 	<!--<sql id="search">

@@ -8,12 +8,12 @@ import lombok.ToString;
 @Setter
 @ToString
 public class SearchCriteria extends Criteria {
-   /* private String contract_date;
-    private String registration_num;*/
+
+    private String contract_date;
+    private String registration_num;
     private String status;
-    /*
     private String created_start;
-    private String created_end;*/
+    private String created_end;
 
 
 }

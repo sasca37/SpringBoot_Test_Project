@@ -1,5 +1,7 @@
 package com.mainline.magic.scheduler.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import com.mainline.magic.scheduler.dto.Criteria;
@@ -27,7 +29,7 @@ public class HistoryController {
 		return "/test";
 	}
 	
-	@GetMapping("/test2")
+	/*@GetMapping("/test2")
 	public String test2(Criteria cri, Model model) throws Exception {
 		log.info("cri : "+cri);
 		// 페이징 전체 글 개수
@@ -46,16 +48,22 @@ public class HistoryController {
 		log.info("list"+list);
 		log.info("paging"+paging);
 		return "/test2";
-	}
+	}*/
 
-	@GetMapping("/test3")
+	@GetMapping("/test4")
 	public String test3(Criteria cri, Model model) throws Exception {
+		// 날짜
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Calendar c1 = Calendar.getInstance();
+		String today = sdf.format(c1.getTime());
+		log.info("today: "+today);
 		// 페이징 전체 글 개수
-		int boardListCnt = mcpTermsService.boardListCnt();
+		int boardListCnt = mcpTermsService.boardListCnt(cri);
 
 		// 페이징 객체
 		Paging paging = new Paging();
 		paging.setCri(cri);
+		log.info(cri);
 		paging.setTotalCounting(boardListCnt);
 
 		List<McpTerms> list = mcpTermsService.boardList(cri);
@@ -64,27 +72,27 @@ public class HistoryController {
 		model.addAttribute("cri", cri);
 		model.addAttribute("boardListCnt", boardListCnt);
 		log.info("list"+list);
-		log.info("paging"+paging);
-		return "/test3";
+		log.info("cri status : "+cri);
+		return "/test4";
 	}
 
 
 	@GetMapping("/search")
 	public String searchPost(Criteria cri, RedirectAttributes redirectAttributes){
-		log.info("redirect cri: "+cri);
+		//log.info("redirect cri: "+cri);
 		/*cri.setContract_date(cri.getContract_date());
 		cri.setRegistration_num(cri.getRegistration_num());
 		cri.setStatus(cri.getStatus());
 		cri.setCreated_start(cri.getCreated_start());
 		cri.setCreated_end(cri.getCreated_end());*/
-
-		redirectAttributes.addAttribute("contract_date", cri.getContract_date());
-		redirectAttributes.addAttribute("registration_num", cri.getRegistration_num());
 		redirectAttributes.addAttribute("status", cri.getStatus());
-		redirectAttributes.addAttribute("created_start", cri.getCreated_start());
-		redirectAttributes.addAttribute("created_end", cri.getCreated_end());
+		/*redirectAttributes.addAttribute("contract_date", cri.getContract_date());
+		redirectAttributes.addAttribute("registration_num", cri.getRegistration_num());
 
-		return "redirect:/MagicScheduler/test2";
+		redirectAttributes.addAttribute("created_start", cri.getCreated_start());
+		redirectAttributes.addAttribute("created_end", cri.getCreated_end());*/
+
+		return "redirect:/MagicScheduler/test3";
 	}
 
 }
