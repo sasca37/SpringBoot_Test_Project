@@ -8,7 +8,6 @@
 		SELECT
 		       *
 		FROM (
-
 			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(STATUS)) NUM
 			  ,MERGE_ID
 			  ,CODE
