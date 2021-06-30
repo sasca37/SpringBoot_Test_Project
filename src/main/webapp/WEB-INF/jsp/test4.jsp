@@ -10,13 +10,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        table {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
     <br>
     <h2>조회 목록</h2>
-    <c:out value="${'Total Search : '} ${boardListCnt}"></c:out>
+    <c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개 (최근 3개월 조회)'}"></c:out>
     <form class="form-inline" action="/MagicScheduler/test4" method="get">
         <div class="form-group">
             <label class="mb-2 mr-sm-2">계약 일짜 :</label>
@@ -25,20 +30,26 @@
             <input type="text" class="form-control mb-2 mr-sm-2" id="registration_num" placeholder="증권번호, 청약번호"
                    name="registration_num" value="${cri.registration_num}">
             <div class="form-group">
-                <label class="mb-2 mr-sm-2">상태 코드 :</label>
+                <label class="mb-2 mr-sm-2">상태:</label>
                 <select class="form-control mb-2 mr-sm-2" id="status" name="status" >
                     <option value=""
                             <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
+                    <option value="00"
+                            <c:out value="${cri.status == '00'?'selected':''}"/> >HTTP 성공(00)</option>
                     <option value="02"
                             <c:out value="${cri.status == '02'?'selected':''}"/> >작업 요청(02)</option>
                     <option value="03"
                             <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작(03)</option>
                     <option value="04"
                             <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료(04)</option>
+                    <option value="90"
+                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90)</option>
                     <option value="98"
                             <c:out value="${cri.status == '98'?'selected':''}"/> >실패(98)</option>
                     <option value="99"
-                            <c:out value="${cri.status == '99'?'selected':''}"/> >약관 제작 실패(99)</option>
+                            <c:out value="${cri.status == '99'?'selected':''}"/> >HTTP 실패(99)</option>
+                    <option value="100"
+                            <c:out value="${cri.status == '100'?'selected':''}"/> >HTTP 오류(02)</option>
                 </select>
             </div>
             <br>
@@ -48,8 +59,8 @@
             <input type="date" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start" value="${cri.created_start}">
             <label class="mb-2 mr-sm-2">조회 종료 :</label>
             <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" name="created_end" value="${cri.created_end}">
-            <button type="button" href="javascript:void(0)" onclick="func('1')" class="btn btn-primary mb-2 mr-2">조회</button>
-            <button type="button" href="javascript:void(0)" onclick="func('home')" class="btn btn-primary mb-2">처음으로</button>
+            <button type="button" href="javascript:void(0)" onclick="func('1')" class="btn btn-primary mb-2 mr-2 ml-4">  조회  </button>
+            <button type="button" href="javascript:void(0)" onclick="func('home')" class="btn btn-primary mb-2 ml-2">처음으로</button>
         </div>
     </form>
 
@@ -58,7 +69,7 @@
         <tr>
             <th>계약 일짜</th>
             <th>접수번호</th>
-            <th>상태코드</th>
+            <th>상태</th>
             <th>생성 일짜</th>
         </tr>
         </thead>

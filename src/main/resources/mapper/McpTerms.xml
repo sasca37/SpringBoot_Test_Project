@@ -11,7 +11,16 @@
 			  SELECT ROW_NUMBER() OVER (ORDER BY TO_NUMBER(STATUS)) NUM
 			  ,MERGE_ID
 			  ,CODE
-			  ,STATUS
+			  ,CASE WHEN STATUS ='00' THEN 'HTTP 성공'
+			        WHEN STATUS ='02' THEN '작업 요청'
+					WHEN STATUS ='03' THEN '약관 제작 시작'
+					WHEN STATUS ='04' THEN '약관 제작 완료'
+					WHEN STATUS ='90' THEN '약관 제작 실패'
+					WHEN STATUS ='98' THEN '실패'
+					WHEN STATUS ='99' THEN 'HTTP 실패'
+					WHEN STATUS ='100' THEN 'HTTP 오류'
+			      	ELSE STATUS
+			   END AS STATUS
 			  ,CREATOR
 			  ,TO_CHAR(CREATED,'YYYY-MM-DD') AS CREATED
 			  ,UPDATOR
@@ -21,27 +30,45 @@
 			  ,PRODUCT_CODE
 			  ,REGISTRATION_NUM
 			  FROM MCP_TERMS_MERGE_LI
-			 <!-- <![CDATA[WHERE TRUNC(SYSDATE) - TO_CHAR(CREATED, 'YYYYMMDD') > 1]]>-->
 			  WHERE 1=1
-				  <if test="status != null and !status.equals('null')">
-					    AND STATUS = #{status}
-				  </if>
-				  <if test="registration_num != null and !registration_num.equals('null')">
+				    <if test="status != null and !status.equals('null')">
+						AND STATUS = #{status}
+					<!--	<choose>
+							<when test="#{status} == '03'">
+								AND STATUS = '약관제작시작'
+							</when>
+							<otherwise>
+								AND STATUS = #{status}
+							</otherwise>
+						</choose>-->
+				    </if>
+
+				    <if test="registration_num != null and !registration_num.equals('null')">
 				  	    AND REGISTRATION_NUM = #{registration_num}
-				  </if>
-				  <if test="contract_date != null and !contract_date.equals('null')">
+				    </if>
+				    <if test="contract_date != null and !contract_date.equals('null')">
 						AND CONTRACT_DATE = #{contract_date}
-				  </if>
-				  <if test="created_start != null and !created_start.equals('null')">
-						AND CREATED <![CDATA[>=]]> #{created_start}
+				    </if>
+					<if test="created_start != null and !created_start.equals('null')">
+						AND TO_CHAR(CREATED,'YYYY-MM-DD')<![CDATA[>=]]> #{created_start}
+					</if>
+					<if test="created_end != null and !created_end.equals('null')">
+						AND TO_CHAR(CREATED,'YYYY-MM-DD') <![CDATA[<=]]> #{created_end}
+					</if>
+					<![CDATA[
+						AND TO_CHAR(ADD_MONTHS(SYSDATE,-3),'YYYY-MM-DD') <= CREATED
+						AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+3),'YYYY-MM-DD')
+					]]>
+				  <!--<if test="created_start != null and !created_start.equals('null')">
+						AND TRUNC(CREATED,'DD') <![CDATA[>=]]> #{created_start}
 				  </if>
 				  <if test="created_end != null and !created_end.equals('null')">
-						AND CREATED <![CDATA[<=]]> #{created_end}
+						AND TRUNC(CREATED,'DD') <![CDATA[<=]]> #{created_end}
 				  </if>
 						<![CDATA[
-						AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= CREATED
-						AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
-						]]>
+						AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= TRUNC(CREATED,'DD')
+						AND TRUNC(CREATED,'DD') <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
+						]]>-->
 			ORDER BY NUM
 			 )
 		WHERE
@@ -54,12 +81,20 @@
 	<select id="boardListCnt"  resultType="int">
 
 		SELECT
-		        COUNT(*)
+		        COUNT(CODE)
 		FROM
 		        MCP_TERMS_MERGE_LI
 		WHERE 1=1
 				<if test="status != null and !status.equals('null')">
 					AND STATUS = #{status}
+					<!--<choose>
+						<when test="#{status} == '03'">
+							AND STATUS = '약관제작시작'
+						</when>
+						<otherwise>
+							AND STATUS = #{status}
+						</otherwise>
+					</choose>-->
 				</if>
 				<if test="registration_num != null and !registration_num.equals('null')">
 					AND REGISTRATION_NUM = #{registration_num}
@@ -68,25 +103,21 @@
 					AND CONTRACT_DATE = #{contract_date}
 				</if>
 				<if test="created_start != null and !created_start.equals('null')">
-					AND CREATED <![CDATA[>=]]> #{created_start}
+					AND TO_CHAR(CREATED,'YYYY-MM-DD')<![CDATA[>=]]> #{created_start}
 				</if>
 				<if test="created_end != null and !created_end.equals('null')">
-					AND CREATED <![CDATA[<=]]> #{created_end}
+					AND TO_CHAR(CREATED,'YYYY-MM-DD') <![CDATA[<=]]> #{created_end}
 				</if>
-					<![CDATA[
-					AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= CREATED
-					AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
-					]]>
-		/*select to_char(add_months(sysdate,-1),'yyyy-mm-dd') as 한달전 from mcp_terms_merge_li;*/
+				<![CDATA[
+				AND TO_CHAR(ADD_MONTHS(SYSDATE,-3),'YYYY-MM-DD') <= CREATED
+				AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+3),'YYYY-MM-DD')
+				]]>
+					<!--<![CDATA[
+					AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= TRUNC(CREATED,'DD')
+					AND TRUNC(CREATED,'DD') <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
+					]]>-->
 
 	</select>
 
-	<!--<sql id="search">
-		<if test="status != null">
-			<if test="status == 't'.toString()">AND TITLE LIKE '%' || #{status} || '%'</if>
-			<if test="status == 'c'.toString()">AND CONTENT LIKE '%' || #{status} || '%'</if>
-			<if test="status == 'w'.toString()">AND WRITER LIKE '%' || #{status} || '%'</if>
-			<if test="status == 'tc'.toString()">AND (TITLE LIKE '%' || #{status} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
-		</if>
-	</sql>-->
+
 </mapper>
