@@ -33,21 +33,12 @@
 			  WHERE 1=1
 				    <if test="status != null and !status.equals('null')">
 						AND STATUS = #{status}
-					<!--	<choose>
-							<when test="#{status} == '03'">
-								AND STATUS = '약관제작시작'
-							</when>
-							<otherwise>
-								AND STATUS = #{status}
-							</otherwise>
-						</choose>-->
 				    </if>
-
 				    <if test="registration_num != null and !registration_num.equals('null')">
 				  	    AND REGISTRATION_NUM = #{registration_num}
 				    </if>
 				    <if test="contract_date != null and !contract_date.equals('null')">
-						AND CONTRACT_DATE = #{contract_date}
+						AND TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') = #{contract_date}
 				    </if>
 					<if test="created_start != null and !created_start.equals('null')">
 						AND TO_CHAR(CREATED,'YYYY-MM-DD')<![CDATA[>=]]> #{created_start}
@@ -59,16 +50,7 @@
 						AND TO_CHAR(ADD_MONTHS(SYSDATE,-3),'YYYY-MM-DD') <= CREATED
 						AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+3),'YYYY-MM-DD')
 					]]>
-				  <!--<if test="created_start != null and !created_start.equals('null')">
-						AND TRUNC(CREATED,'DD') <![CDATA[>=]]> #{created_start}
-				  </if>
-				  <if test="created_end != null and !created_end.equals('null')">
-						AND TRUNC(CREATED,'DD') <![CDATA[<=]]> #{created_end}
-				  </if>
-						<![CDATA[
-						AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= TRUNC(CREATED,'DD')
-						AND TRUNC(CREATED,'DD') <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
-						]]>-->
+
 			ORDER BY NUM
 			 )
 		WHERE
@@ -79,7 +61,6 @@
 	</select>
 
 	<select id="boardListCnt"  resultType="int">
-
 		SELECT
 		        COUNT(CODE)
 		FROM
@@ -87,20 +68,12 @@
 		WHERE 1=1
 				<if test="status != null and !status.equals('null')">
 					AND STATUS = #{status}
-					<!--<choose>
-						<when test="#{status} == '03'">
-							AND STATUS = '약관제작시작'
-						</when>
-						<otherwise>
-							AND STATUS = #{status}
-						</otherwise>
-					</choose>-->
 				</if>
 				<if test="registration_num != null and !registration_num.equals('null')">
 					AND REGISTRATION_NUM = #{registration_num}
 				</if>
 				<if test="contract_date != null and !contract_date.equals('null')">
-					AND CONTRACT_DATE = #{contract_date}
+					AND TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') = #{contract_date}
 				</if>
 				<if test="created_start != null and !created_start.equals('null')">
 					AND TO_CHAR(CREATED,'YYYY-MM-DD')<![CDATA[>=]]> #{created_start}
@@ -112,11 +85,6 @@
 				AND TO_CHAR(ADD_MONTHS(SYSDATE,-3),'YYYY-MM-DD') <= CREATED
 				AND CREATED <= TO_CHAR(ADD_MONTHS(SYSDATE,+3),'YYYY-MM-DD')
 				]]>
-					<!--<![CDATA[
-					AND TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYY-MM-DD') <= TRUNC(CREATED,'DD')
-					AND TRUNC(CREATED,'DD') <= TO_CHAR(ADD_MONTHS(SYSDATE,+1),'YYYY-MM-DD')
-					]]>-->
-
 	</select>
 
 

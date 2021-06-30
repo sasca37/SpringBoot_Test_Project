@@ -97,19 +97,19 @@
             <c:choose>
                 <c:when test="${cri.page eq num}">
                     <li class="page-item active">
-                        <a class="page-link" href="javascript:void(0)" onclick="func(${num})" <%--href='<c:url value="/MagicScheduler/test4?page=${num}"/>'--%>>${num}</a>
+                        <a class="page-link" href="javascript:void(0)" onclick="func(${num})">${num}</a>
                     </li>
                 </c:when>
                 <c:otherwise>
                     <li class="page-item">
-                        <a class="page-link" href="javascript:void(0)" onclick="func(${num})" <%--href='<c:url value="/MagicScheduler/test4?page=${num}"/>'--%>>${num}</a>
+                        <a class="page-link" href="javascript:void(0)" onclick="func(${num})">${num}</a>
                     </li>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
         <c:if test="${paging.next && paging.endPage>0}">
             <li class="page-item">
-                <a class="page-link" href="javascript:void(0)" onclick="func(${paging.endPage+1})"<%--href='<c:url value="/MagicScheduler/test2?page=${paging.endPage+1}"/>'--%>>다음</a>
+                <a class="page-link" href="javascript:void(0)" onclick="func(${paging.endPage+1})">다음</a>
             </li>
         </c:if>
     </ul>
@@ -120,7 +120,6 @@
 
     function func(page) {
        /* var page/!*= '<c:out value="${cri.page}"/>'*!/;*/
-        /*document.write(page);*/
         console.log("page"+page);
         var contract_date = document.getElementById("contract_date").value;
         var status = document.getElementById("status").value;
@@ -128,14 +127,12 @@
         var created_start = document.getElementById("created_start").value;
         var created_end = document.getElementById("created_end").value;
 
-        /* alert("이름을 기입해 주십시오.");*/
         const key = ['contract_date', 'registration_num', 'status', 'created_start', 'created_end'];
         const value = [contract_date, registration_num, status, created_start, created_end];
         const arr =[];
 
         for(var i =0; i<value.length; i++){
             if(value[i] != null && value[i] != '') {
-                /* document.write("i: "+value[i]);*/
                 arr.push(i);
             }
         }
@@ -161,7 +158,7 @@
             location.href="test4?page="+page+"&"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]]+"&"+key[arr[2]]+"="+value[arr[2]];
         }
         else if (arr.length == 4) {
-            location.href="test4?page="+page+"&"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]]+"&"+key[arr[2]]+"="+value[arr[2]]+key[arr[3]]+"="+value[arr[3]];
+            location.href="test4?page="+page+"&"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]]+"&"+key[arr[2]]+"="+value[arr[2]]+"&"+key[arr[3]]+"="+value[arr[3]];
         }
         else {
             location.href= "test4?page="+page+"&"+"contract_date="+contract_date+"&registration_num="+registration_num+"&status="+status+
@@ -170,45 +167,7 @@
 
     }
 
-    /*function btn() {
-        var contract_date = document.getElementById("contract_date").value;
-        var status = document.getElementById("status").value;
-        var registration_num = document.getElementById("registration_num").value;
-        var created_start = document.getElementById("created_start").value;
-        var created_end = document.getElementById("created_end").value;
 
-        /!* alert("이름을 기입해 주십시오.");*!/
-        const key = ['contract_date', 'registration_num', 'status', 'created_start', 'created_end'];
-        const value = [contract_date, registration_num, status, created_start, created_end];
-        const arr =[];
-
-        console.log(value.filter(n => n))
-        for(var i =0; i<value.length; i++){
-            if(value[i] != null && value[i] != '') {
-                /!* document.write("i: "+value[i]);*!/
-                arr.push(i);
-            }
-        }
-        if(arr.length ==0 ){
-            alert("최소 한개 이상 검색 값을 넣어주세요.");
-        }
-        else if(arr.length == 1){
-            location.href="test4?"+key[arr[0]]+"="+value[arr[0]];
-        }
-        else if (arr.length == 2) {
-            location.href="test4?"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]];
-        }
-        else if (arr.length == 3) {
-            location.href="test4?"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]]+"&"+key[arr[2]]+"="+value[arr[2]];
-        }
-        else if (arr.length == 4) {
-            location.href="test4?"+key[arr[0]]+"="+value[arr[0]]+"&"+key[arr[1]]+"="+value[arr[1]]+"&"+key[arr[2]]+"="+value[arr[2]]+key[arr[3]]+"="+value[arr[3]];
-        }
-        else {
-            location.href= "test3?contract_date="+contract_date+"&registration_num="+registration_num+"&status="+status+
-                "&created_start="+created_start+"&created_end="+created_end;
-        }
-    }*/
 </script>
 <%--<script>
 

@@ -1,11 +1,8 @@
 package com.mainline.magic.scheduler.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Getter
 @ToString
@@ -44,78 +41,7 @@ public class Paging {
         // 다음 버튼 생성 여부 = 끝 페이지 번호 * 한 페이지당 보여줄 게시글의 개수가 총 게시글의 수보다
         // 크거나 같으면 false, 아니면 true
         next = endPage * cri.getPerPageNum() >= totalCount ? false : true;
-  /*      cri.setContract_date(cri.getContract_date());
-        cri.setRegistration_num(cri.getRegistration_num());
-        cri.setStatus(cri.getStatus());
-        cri.setCreated_start(cri.getCreated_start());
-        cri.setCreated_end(cri.getCreated_end());*/
     }
-    public String makeSearch(int page){
-
-        UriComponents uriComponents =
-                UriComponentsBuilder.newInstance()
-                        .queryParam("page", page)
-                        .queryParam("perPageNum", cri.getPerPageNum())
-                        .queryParam("status", ((SearchCriteria)cri).getStatus())
-                        /*.queryParam("registration_num", ((SearchCriteria)cri).getRegistration_num())*/
-                        .build();
-        return uriComponents.toUriString();
-    }
-
-   /* public int getDisplayPageNum() {
-        return displayPageNum;
-    }
-
-    public void setDisplayPageNum(int displayPageNum) {
-        this.displayPageNum = displayPageNum;
-    }
-
-    public int getStartPage() {
-        return startPage;
-    }
-
-    public void setStartPage(int startPage) {
-        this.startPage = startPage;
-    }
-
-    public int getEndPage() {
-        return endPage;
-    }
-
-    public void setEndPage(int endPage) {
-        this.endPage = endPage;
-    }
-
-    public boolean isPrev() {
-        return prev;
-    }
-
-    public void setPrev(boolean prev) {
-        this.prev = prev;
-    }
-
-    public boolean isNext() {
-        return next;
-    }
-
-    public void setNext(boolean next) {
-        this.next = next;
-    }
-
-    public Criteria getCri() {
-        return cri;
-    }
-
-    public void setCri(Criteria cri) {
-        this.cri = cri;
-    }
-
-
-    @Override
-    public String toString() {
-        return "PageMaker [totalCount=" + totalCount + ", startPage=" + startPage + ", endPage=" + endPage + ", prev="
-                + prev + ", next=" + next + ", displayPageNum=" + displayPageNum + ", cri=" + cri + "]";
-    }*/
 
 }
 

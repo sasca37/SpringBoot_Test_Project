@@ -27,7 +27,6 @@ public class Criteria {
         // 기본 생성자 : 최초 게시판에 진입시 필요한 기본값
         this.page = 1;
         this.perPageNum = 10;
-        this.status=null;
     }
     public int getPageStart() {
         // 특정 페이지의 범위를 정하는 구간, 현재 페이지의 게시글 시작 번호

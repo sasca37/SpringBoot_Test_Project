@@ -1,12 +1,9 @@
 package com.mainline.magic.scheduler.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 import com.mainline.magic.scheduler.dto.Criteria;
 import com.mainline.magic.scheduler.dto.Paging;
-import com.mainline.magic.scheduler.dto.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
