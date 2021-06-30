@@ -15,8 +15,8 @@
 			        WHEN STATUS ='02' THEN '작업 요청'
 					WHEN STATUS ='03' THEN '약관 제작 시작'
 					WHEN STATUS ='04' THEN '약관 제작 완료'
-					WHEN STATUS ='90' THEN '약관 제작 실패(90)'
-					WHEN STATUS ='98' THEN '약관 제작 실패(98)'
+					WHEN STATUS ='90' THEN '약관 제작 실패'
+					WHEN STATUS ='98' THEN '약관 제작 실패'
 					WHEN STATUS ='99' THEN 'HTTP 실패'
 					WHEN STATUS ='100' THEN 'HTTP 오류'
 			      	ELSE STATUS

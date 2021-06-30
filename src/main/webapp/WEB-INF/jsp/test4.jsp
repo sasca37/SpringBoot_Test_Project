@@ -13,38 +13,48 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style >
         @import url(//fonts.googleapis.com/earlyaccess/nanumpenscript.css);
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap');
+        @import url(//fonts.googleapis.com/earlyaccess/hanna.css);
+
+
         .table {
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 20px;
+            font-family: 'Nanum Gothic Coding', monospace;
+            font-size: 15px;
         }
         div {
             text-align: center;
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Nanum Gothic Coding', monospace;
+           /* font-family: 'Noto Sans KR', sans-serif;*/
             font-size: 15px;
         }
         h2{
-            font-family: 'Nanum Pen Script', cursive;
-            font-size: 60px;
+            font-family: 'Hanna', fantasy;
+            font-size: 40px;
         }
         p {
             font-family: 'Nanum Pen Script', cursive;
             font-size: 25px;
         }
+        #form1 {
+            display: inline-block;
+            text-align: center;
+        }
         input[type="date"]::before {content:attr(data-placeholder); width: 70%}
         input[type="date"]:focus::before,
         input[type="date"]:valid::before {display:none}
+
         #button1, #button2 {
             background-color: white;
             color: black;
             border: 2px solid deepskyblue;
             transition-duration: 0.4s;
             width: 105px;
+            font-size : 15px;
             font-family: 'Nanum Pen Script', cursive;
         }
 
         #button1:hover, #button2:hover {
-            background-color: cornflowerblue; /* Green */
+            background-color: #6495ED;
             color: white;
         }
     </style>
@@ -57,7 +67,7 @@
     <h2>조회 목록</h2>
     <p><c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개, '}${'조회 가능 일짜 (최근 3개월) : '} ${threeMonthAgo}${' ~ '}${threeMonthLater}"></c:out></p>
 
-    <form class="form-inline" action="/MagicScheduler/test4" method="get" style="text-align: center;">
+    <form class="form-inline" action="/MagicScheduler/test4" method="get" id="form1" >
         <div class="form-group">
             <label class="mb-2 mr-sm-2">계약 일짜 :</label>
             <input type="date" class="form-control mb-2 mr-sm-2" style="width: 200px" id="contract_date" name="contract_date" value="${cri.contract_date}">
@@ -70,11 +80,11 @@
                     <option value=""
                             <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
                     <option value="03"
-                            <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작(03)</option>
+                            <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작</option>
                     <option value="04"
-                            <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료(04)</option>
+                            <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료</option>
                     <option value="90"
-                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90,98)</option>
+                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패</option>
 
                 </select>
             </div>
@@ -85,8 +95,8 @@
             <input type="date" data-placeholder="${threeMonthAgo}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_start" style="width: 200px" value="${cri.created_start}" >
             <label class="mb-2 mr-sm-2">조회 종료 :</label>
             <input type="date" data-placeholder="${threeMonthLater}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_end"  style="width: 200px" name="created_end" value="${cri.created_end}">
-            <button type="button" id="button1" href="javascript:void(0)" onclick="func('1')"  class="btn btn-primary mb-2 mr-2 ml-4">  조회  </button>
-            <button type="button" id="button2" href="javascript:void(0)" onclick="func('home')"  class="btn btn-primary mb-2 ml-2">처음으로</button>
+            <button type="button" id="button1" href="javascript:void(0)" onclick="func('1')"  class="btn btn-primary mb-2 mr-2 ml-3">  조회  </button>
+            <button type="button" id="button2" href="javascript:void(0)" onclick="func('home')"  class="btn btn-primary mb-2 ml-3">처음으로</button>
         </div>
     </form>
 
@@ -148,7 +158,6 @@
         /* var page/!*= '<c:out value="${cri.page}"/>'*!/;*/
         var threeMonthAgo = '<c:out value="${threeMonthAgo}"/>';
         var threeMonthLater = '<c:out value="${threeMonthLater}"/>';
-       /* location.href="test4?created_start="+threeMonthAgo+"&created_end="+threeMonthLater;*/
         console.log("page"+page);
         var contract_date = document.getElementById("contract_date").value;
         var status = document.getElementById("status").value;
@@ -172,10 +181,10 @@
         }
         else if(arr.length ==0 && page == '1' ){
             location.href="test4?page="+page+"&created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
-            /* alert("최소 한개 이상 검색 값을 넣어주세요.");*/
+             /*alert("최소 한개 이상 검색 값을 넣어주세요.");*/
         }
         else if (arr.length ==0) {
-            location.href="test4?page="+page;
+            location.href="test4?page="+page+"&created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
         }
         else if(arr.length == 1){
             location.href="test4?page="+page+"&"+key[arr[0]]+"="+value[arr[0]];
