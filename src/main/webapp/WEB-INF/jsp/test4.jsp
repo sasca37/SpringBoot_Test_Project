@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,17 +12,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style type="text/css">
-        table {
+        .table {
             text-align: center;
         }
+        .div {
+            text-align: center;
+        }
+        .h2{
+            font-family: sans-serif;
+        }
+        .p {
+            font-family: Fantasy;
+            border-style: dotted dashed solid double;
+        }
+        /*input[type="date"]::before {content:attr(data-placeholder);width: 120%}
+        input[type="date"]:focus::before,
+        input[type="date"]:valid::before {display:none}*/
     </style>
 </head>
 <body>
 
+<script type="text/javascript">
+    func(${cri.page});
+</script>
+
 <div class="container">
     <br>
     <h2>조회 목록</h2>
-    <c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개 (최근 3개월 조회)'}"></c:out>
+    <p><c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개 (최근 3개월 조회)'}"></c:out></p>
+    <p><c:out value="${'조회 가능 일짜 (최근 3개월) : '} ${threeMonthAgo}${' - '}${threeMonthLater}"></c:out></p>
     <form class="form-inline" action="/MagicScheduler/test4" method="get">
         <div class="form-group">
             <label class="mb-2 mr-sm-2">계약 일짜 :</label>
@@ -34,31 +53,26 @@
                 <select class="form-control mb-2 mr-sm-2" id="status" name="status" >
                     <option value=""
                             <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
-                    <option value="00"
-                            <c:out value="${cri.status == '00'?'selected':''}"/> >HTTP 성공(00)</option>
-                    <option value="02"
-                            <c:out value="${cri.status == '02'?'selected':''}"/> >작업 요청(02)</option>
                     <option value="03"
                             <c:out value="${cri.status == '03'?'selected':''}"/> >약관 제작 시작(03)</option>
                     <option value="04"
                             <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료(04)</option>
                     <option value="90"
-                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90)</option>
+                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90)
                     <option value="98"
                             <c:out value="${cri.status == '98'?'selected':''}"/> >실패(98)</option>
-                    <option value="99"
-                            <c:out value="${cri.status == '99'?'selected':''}"/> >HTTP 실패(99)</option>
-                    <option value="100"
-                            <c:out value="${cri.status == '100'?'selected':''}"/> >HTTP 오류(02)</option>
+                    </option>
+
                 </select>
             </div>
             <br>
         </div>
         <div class="form-group">
             <label class="mb-2 mr-sm-2">조회 시작 :</label>
-            <input type="date" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start" value="${cri.created_start}">
+            <input type="date" data-placeholder="${threeMonthAgo}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start" value="${cri.created_start}" >
+            <%--<label for="created_start">3개월 전</label>--%>
             <label class="mb-2 mr-sm-2">조회 종료 :</label>
-            <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" name="created_end" value="${cri.created_end}">
+            <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" placeholder="3개월 후" name="created_end" value="${cri.created_end}">
             <button type="button" href="javascript:void(0)" onclick="func('1')" class="btn btn-primary mb-2 mr-2 ml-4">  조회  </button>
             <button type="button" href="javascript:void(0)" onclick="func('home')" class="btn btn-primary mb-2 ml-2">처음으로</button>
         </div>
@@ -90,7 +104,7 @@
     <ul class="pagination h-100 justify-content-center align-items-center">
         <c:if test="${paging.prev}">
             <li class="page-item">
-                <a class="page-link" href="javascript:void(0)" onclick="func(${paging.startPage-1})"<%--href='<c:url value="/MagicScheduler/test4?page=${paging.startPage-1}"/>'--%>>이전</a>
+                <a class="page-link" href="javascript:void(0)" onclick="func(${paging.startPage-1})">이전</a>
             </li>
         </c:if>
         <c:forEach begin="${paging.startPage}" end="${paging.endPage}" var="num">
@@ -119,7 +133,10 @@
 <script type="text/javascript">
 
     function func(page) {
-       /* var page/!*= '<c:out value="${cri.page}"/>'*!/;*/
+        /* var page/!*= '<c:out value="${cri.page}"/>'*!/;*/
+        var threeMonthAgo = '<c:out value="${threeMonthAgo}"/>';
+        var threeMonthLater = '<c:out value="${threeMonthLater}"/>';
+        location.href="test4?created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
         console.log("page"+page);
         var contract_date = document.getElementById("contract_date").value;
         var status = document.getElementById("status").value;
@@ -136,14 +153,14 @@
                 arr.push(i);
             }
         }
-        console.log("arr length : " + arr.length);
+        console.log("threeMonthAgo : " + threeMonthAgo);
 
         if (page=='home') {
-            location.href="test4";
+            location.href="test4?created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
         }
         else if(arr.length ==0 && page == '1' ){
-            location.href="test4?page="+page;
-           /* alert("최소 한개 이상 검색 값을 넣어주세요.");*/
+            location.href="test4?page="+page+"&created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
+            /* alert("최소 한개 이상 검색 값을 넣어주세요.");*/
         }
         else if (arr.length ==0) {
             location.href="test4?page="+page;

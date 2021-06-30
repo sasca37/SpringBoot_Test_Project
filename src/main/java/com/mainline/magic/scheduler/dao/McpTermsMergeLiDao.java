@@ -13,4 +13,6 @@ public interface McpTermsMergeLiDao {
 
 	 List<McpTerms> boardList(Criteria cri) throws Exception;
 	 int boardListCnt(Criteria cri) throws Exception;
+	 String threeMonthAgo() throws Exception;
+	 String threeMonthLater() throws Exception;
 }

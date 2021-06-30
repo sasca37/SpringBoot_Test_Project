@@ -25,4 +25,11 @@ public class McpTermsService {
 		return mcpTermsMergeLiDao.boardList(cri);
 	}
 
+	public String threeMonthAge() throws Exception {
+		return mcpTermsMergeLiDao.threeMonthAgo();
+	}
+
+	public String threeMonthLater() throws Exception {
+		return mcpTermsMergeLiDao.threeMonthLater();
+	}
 }

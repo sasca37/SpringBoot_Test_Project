@@ -31,7 +31,8 @@ public class HistoryController {
 
 		// 페이징 전체 글 개수
 		int boardListCnt = mcpTermsService.boardListCnt(cri);
-
+		String threeMonthAgo = mcpTermsService.threeMonthAge();
+		String threeMonthLater = mcpTermsService.threeMonthLater();
 		// 페이징 객체
 		Paging paging = new Paging();
 		paging.setCri(cri);
@@ -43,8 +44,11 @@ public class HistoryController {
 		model.addAttribute("paging", paging);
 		model.addAttribute("cri", cri);
 		model.addAttribute("boardListCnt", boardListCnt);
+		model.addAttribute("threeMonthAgo", threeMonthAgo);
+		model.addAttribute("threeMonthLater", threeMonthLater);
 		log.info("list"+list);
 		log.info("cri status : "+cri);
+		log.info("defalut date : "+threeMonthAgo +"~"+threeMonthLater);
 		return "/test4";
 	}
 
