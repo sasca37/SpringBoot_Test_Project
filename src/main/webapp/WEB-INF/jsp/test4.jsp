@@ -11,46 +11,62 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <style type="text/css">
+    <style >
+        @import url(//fonts.googleapis.com/earlyaccess/nanumpenscript.css);
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;400&display=swap');
         .table {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 20px;
+        }
+        div {
             text-align: center;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 15px;
         }
-        .div {
-            text-align: center;
+        h2{
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 60px;
         }
-        .h2{
-            font-family: sans-serif;
+        p {
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 25px;
         }
-        .p {
-            font-family: Fantasy;
-            border-style: dotted dashed solid double;
-        }
-        /*input[type="date"]::before {content:attr(data-placeholder);width: 120%}
+        input[type="date"]::before {content:attr(data-placeholder); width: 70%}
         input[type="date"]:focus::before,
-        input[type="date"]:valid::before {display:none}*/
+        input[type="date"]:valid::before {display:none}
+        #button1, #button2 {
+            background-color: white;
+            color: black;
+            border: 2px solid deepskyblue;
+            transition-duration: 0.4s;
+            width: 105px;
+            font-family: 'Nanum Pen Script', cursive;
+        }
+
+        #button1:hover, #button2:hover {
+            background-color: cornflowerblue; /* Green */
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-<script type="text/javascript">
-    func(${cri.page});
-</script>
 
 <div class="container">
     <br>
     <h2>조회 목록</h2>
-    <p><c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개 (최근 3개월 조회)'}"></c:out></p>
-    <p><c:out value="${'조회 가능 일짜 (최근 3개월) : '} ${threeMonthAgo}${' - '}${threeMonthLater}"></c:out></p>
-    <form class="form-inline" action="/MagicScheduler/test4" method="get">
+    <p><c:out value="${'조회된 데이터 수 : '} ${boardListCnt}${'개, '}${'조회 가능 일짜 (최근 3개월) : '} ${threeMonthAgo}${' ~ '}${threeMonthLater}"></c:out></p>
+
+    <form class="form-inline" action="/MagicScheduler/test4" method="get" style="text-align: center;">
         <div class="form-group">
             <label class="mb-2 mr-sm-2">계약 일짜 :</label>
-            <input type="date" class="form-control mb-2 mr-sm-2" id="contract_date" name="contract_date" value="${cri.contract_date}">
+            <input type="date" class="form-control mb-2 mr-sm-2" style="width: 200px" id="contract_date" name="contract_date" value="${cri.contract_date}">
             <label class="mb-2 mr-sm-2">접수 번호 :</label>
-            <input type="text" class="form-control mb-2 mr-sm-2" id="registration_num" placeholder="증권번호, 청약번호"
+            <input type="text" class="form-control mb-2 mr-sm-2" style="width: 200px" id="registration_num" placeholder="증권번호, 청약번호"
                    name="registration_num" value="${cri.registration_num}">
             <div class="form-group">
                 <label class="mb-2 mr-sm-2">상태:</label>
-                <select class="form-control mb-2 mr-sm-2" id="status" name="status" >
+                <select class="form-control mb-2 mr-sm-2" style="width: 200px" id="status" name="status" >
                     <option value=""
                             <c:out value="${cri.status == ''?'selected':''}"/> >전체</option>
                     <option value="03"
@@ -58,10 +74,7 @@
                     <option value="04"
                             <c:out value="${cri.status == '04'?'selected':''}"/> >약관 제작 완료(04)</option>
                     <option value="90"
-                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90)
-                    <option value="98"
-                            <c:out value="${cri.status == '98'?'selected':''}"/> >실패(98)</option>
-                    </option>
+                            <c:out value="${cri.status == '90'?'selected':''}"/> >약관 제작 실패(90,98)</option>
 
                 </select>
             </div>
@@ -69,12 +82,11 @@
         </div>
         <div class="form-group">
             <label class="mb-2 mr-sm-2">조회 시작 :</label>
-            <input type="date" data-placeholder="${threeMonthAgo}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_start" name="created_start" value="${cri.created_start}" >
-            <%--<label for="created_start">3개월 전</label>--%>
+            <input type="date" data-placeholder="${threeMonthAgo}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_start" style="width: 200px" value="${cri.created_start}" >
             <label class="mb-2 mr-sm-2">조회 종료 :</label>
-            <input type="date" class="form-control mb-2 mr-sm-2" id="created_end" placeholder="3개월 후" name="created_end" value="${cri.created_end}">
-            <button type="button" href="javascript:void(0)" onclick="func('1')" class="btn btn-primary mb-2 mr-2 ml-4">  조회  </button>
-            <button type="button" href="javascript:void(0)" onclick="func('home')" class="btn btn-primary mb-2 ml-2">처음으로</button>
+            <input type="date" data-placeholder="${threeMonthLater}" required aria-required="true" class="form-control mb-2 mr-sm-2" id="created_end"  style="width: 200px" name="created_end" value="${cri.created_end}">
+            <button type="button" id="button1" href="javascript:void(0)" onclick="func('1')"  class="btn btn-primary mb-2 mr-2 ml-4">  조회  </button>
+            <button type="button" id="button2" href="javascript:void(0)" onclick="func('home')"  class="btn btn-primary mb-2 ml-2">처음으로</button>
         </div>
     </form>
 
@@ -136,7 +148,7 @@
         /* var page/!*= '<c:out value="${cri.page}"/>'*!/;*/
         var threeMonthAgo = '<c:out value="${threeMonthAgo}"/>';
         var threeMonthLater = '<c:out value="${threeMonthLater}"/>';
-        location.href="test4?created_start="+threeMonthAgo+"&created_end="+threeMonthLater;
+       /* location.href="test4?created_start="+threeMonthAgo+"&created_end="+threeMonthLater;*/
         console.log("page"+page);
         var contract_date = document.getElementById("contract_date").value;
         var status = document.getElementById("status").value;
@@ -186,16 +198,6 @@
 
 
 </script>
-<%--<script>
 
-    $(document).ready(function(){
-        $("#email2").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#mySearch tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
-    });
-</script>--%>
 </body>
 </html>

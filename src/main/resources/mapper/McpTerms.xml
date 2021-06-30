@@ -32,7 +32,15 @@
 			  FROM MCP_TERMS_MERGE_LI
 			  WHERE 1=1
 				    <if test="status != null and !status.equals('null')">
-						AND STATUS = #{status}
+			    		<choose>
+							<when test="status == '90'">
+								AND STATUS = #{status} OR STATUS = '98'
+							</when>
+			  				<otherwise>
+								AND STATUS = #{status}
+							</otherwise>
+						</choose>
+
 				    </if>
 				    <if test="registration_num != null and !registration_num.equals('null')">
 				  	    AND REGISTRATION_NUM = #{registration_num}
@@ -67,7 +75,14 @@
 		        MCP_TERMS_MERGE_LI
 		WHERE 1=1
 				<if test="status != null and !status.equals('null')">
-					AND STATUS = #{status}
+					<choose>
+						<when test="status == '90'">
+							AND STATUS = #{status} OR STATUS = '98'
+						</when>
+						<otherwise>
+							AND STATUS = #{status}
+						</otherwise>
+					</choose>
 				</if>
 				<if test="registration_num != null and !registration_num.equals('null')">
 					AND REGISTRATION_NUM = #{registration_num}
