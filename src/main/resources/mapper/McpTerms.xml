@@ -85,7 +85,7 @@
 					</choose>
 				</if>
 				<if test="registration_num != null and !registration_num.equals('null')">
-					AND REGISTRATION_NUM = #{registration_num}
+					AND REGISTRATION_NUM   = #{registration_num}
 				</if>
 				<if test="contract_date != null and !contract_date.equals('null')">
 					AND TO_CHAR(CONTRACT_DATE,'YYYY-MM-DD') = #{contract_date}
